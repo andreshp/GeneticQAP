@@ -35,7 +35,4 @@ class QAP(AbstractProblem):
         f.readline()
         self.distances = np.matrix([list(map(int, f.readline().split())) for i in range(0,self.N)])
         
-        print(self.weights)
-        print(self.distances)
-
     

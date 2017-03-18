@@ -6,8 +6,8 @@
 
 import random
 import argparse
-from solution import *
-from problem import *
+from Solution import *
+from Problem import *
 
 if __name__ == "__main__":
 
@@ -20,3 +20,4 @@ if __name__ == "__main__":
 
     problem = QAP(args.instance)
     sol = Solution(problem)
+    sol.fullPrint()
