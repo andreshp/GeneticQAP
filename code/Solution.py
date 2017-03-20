@@ -5,22 +5,54 @@
 #########################################################################
 
 import random
+from numba import jit, int64          # import the decorator
 
-from Problem import *
+from AbstractSolution import *
+from QAP import *
 
-class AbstractSolution:
 
-    # Initializes an abstract solution from the problem.
-    def __init__(self, problem):
+@jit(int64(int64[:], int64[:,:], int64[:,:]), cache=True)
+def numbaComputeObjectiveValue(perm, weights, distances):
+    """Numba optimization for computing the solution objective value."""
+    ovalue = 0
+    for i in range(0, len(perm)):
+        for j in range(0, len(perm)):
+            ovalue += weights[i, j] * distances[perm[i], perm[j]]
+    return ovalue
+
+
+class Solution(object):
+
+    def __init__(self, problem, random = True, structure = None):
+        #super().__init__(problem, random, structure)
         self.problem = problem
         self.ovalue = -1
         self.is_valid = False
         self.algorithm = None
-        self.initializeData(problem)
-        
-    # Initializes the solution data.
-    def initializeData(self, problem):
-        raise NotImplementedError
+        self.initializeData(problem, random, structure)
+
+    def initializeData(self, problem, random = True, structure = None):
+        """ Initalizes the permutation of the solution.
+        By default the permutation is randomly selected.
+        If random is False, then the permutation is taken from structure.
+        A none structure implies that the permutation is empty. 
+        """
+
+        if random and structure is None:
+            self.perm =  np.random.permutation(problem.N).astype(np.int64)
+            self.algorithm = 'random'
+            self.is_valid = True
+        elif structure is not None:
+            self.perm = structure
+            self.is_valid = True
+        else:
+            self.perm = np.empty(problem.N, dtype = np.int64)
+
+    def computeObjectiveValue(self):
+        """ Computes the solution objective value. """
+        if self.is_valid:
+            self.ovalue = numbaComputeObjectiveValue(self.perm, self.problem.weights, self.problem.distances)
+        return self.ovalue
 
     # Gets the solution objective value.
     def getObjectiveValue(self):
@@ -31,47 +63,11 @@ class AbstractSolution:
                 return self.ovalue
         else:
             return -1
-
-    # Computes the solution objective value.
-    def computeObjectiveValue(self):
-        raise NotImplementedError
-
-    # Prints the solution information completely.
-    def fullPrint(self):
-        raise NotImplementedError
     
-class Solution(AbstractSolution):
-
-    def __init__(self, problem, random = True):
-        super().__init__(problem)
-
-    # Initalizes the permutation of the solution.
-    # By default the permutation is randomly selected.
-    # If random is False, then the permutation is left empty.
-    def initializeData(self, problem, random = True):
-        if random:
-            self.perm =  np.random.permutation(problem.N)
-            self.algorithm = 'random'
-            self.is_valid = True
-        else:
-            self.perm = np.zeros(problem.N)
-        
-    # Computes the solution objective value.
-    def computeObjectiveValue(self):
-        if self.is_valid:
-            self.ovalue = 0
-
-            print(self.perm)
-            for i in range(0, len(self.perm)):
-                for j in range(0, len(self.perm)):
-                    print(self.problem.distances)
-                    self.ovalue += self.problem.weights[i][j]*self.problem.distances[self.perm[i]][self.perm[j]]
-        return self.ovalue
-
-    # Prints the solution information completely.
     def fullPrint(self):
-        print("The solution has objective value", self.getObjectiveValue())
-        print("The solution has been built by the algorithm", self.algorithm)
+        """ Prints the solution information completely. """
+        print("The solution has objective value", self.getObjectiveValue(), ".")
+        print("The solution has been built by the algorithm", self.algorithm, ".")
         print("The permutation is:")
         print(self.perm)
                 
