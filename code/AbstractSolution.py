@@ -8,20 +8,53 @@ import random
 
 class AbstractSolution:
 
-    # Initializes an abstract solution from the problem.
+    """
+    Class which represents an abstract solution.
+    A solution has five essential methods:
+    - The init method, where the solution data is initialized. 
+      It calls the initializeData method.
+    - The initializeData method, where the solution is fully initialized.
+      It must be implemented for each problem.
+    - The getObjectiveValue method, which return the solution's objective
+      value.
+    - The computeObjectiveValue method, which computes the solution's objective 
+      value and must be implemented for each problem.
+    - The fullPrint method, which prints the whole solution. It must also be
+      implemented for each problem.
+    """
+
     def __init__(self, problem, random = True, structure = None):
+        """ Initializes an abstract solution from the problem. 
+        The solution general data is initialized by default.
+        Then it calls the initializeData method.
+        """
+
+        # Problem which attempts to solve the solution.
         self.problem = problem
+        # Solution objective value. It is -1 by default.
         self.ovalue = -1
+        # Tells whether the solution is valid or not.
         self.is_valid = False
+        # Algorithm used to build the solution.
         self.algorithm = None
         self.initializeData(problem, random, structure)
         
-    # Initializes the solution data.
-    def initializeData(self, problem, random = True, structure = None):
+    def initializeData(self, problem, random, structure):
+        """ Initializes an abstract solution data from the problem.
+        If structure is not None, then the solution's structure is taken 
+        from this parameter. Otherwise if random = True, then the solution 
+        is randomly built and if random = False, then the solution is not
+        constructed and it is initialized by default.
+        It must be implemented for each problem.
+        """
         raise NotImplementedError
 
-    # Gets the solution objective value.
     def getObjectiveValue(self):
+        """ Gets the solution objective value, which is taken from
+        the ovalue attribute. If it is -1 and the solution is valid,
+        then the real objective value is computed by the 
+        computeObjectiveValue method.
+        """
         if self.is_valid:
             if self.ovalue == -1:
                 return self.computeObjectiveValue()
@@ -30,11 +63,15 @@ class AbstractSolution:
         else:
             return -1
 
-    # Computes the solution objective value.
     def computeObjectiveValue(self):
+        """Computes the solution objective value.
+        It must be implemented for each problem.
+        """
         raise NotImplementedError
 
-    # Prints the solution information completely.
     def fullPrint(self):
+        """ Prints the solution information completely.
+        It must be implemented for each problem.
+        """
         raise NotImplementedError
                 

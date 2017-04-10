@@ -8,6 +8,7 @@ import random
 from numba import jit, int64          # import the decorator
 
 from Solution import *
+from Heuristic import *
 
 @jit(int64[:](int64[:]), cache=True, nopython=True)
 def invertPermutation(p):
@@ -17,7 +18,7 @@ def invertPermutation(p):
     s[p] = np.arange(p.size)
     return s
 
-class Greedy:
+class Greedy(Heuristic):
 
     def __init__(self, problem):
         self.problem = problem
@@ -50,8 +51,10 @@ class Greedy:
 
         partial_sol.is_valid = True
         return partial_sol
-            
-                
+
+    def initialComputations1(self):
+        self.best_sol = self.buildSolution()
+    
 class GreedyQAP(Greedy):
 
     def __init__(self, problem):
@@ -63,10 +66,10 @@ class GreedyQAP(Greedy):
         self.pdistances = problem.distances.sum(axis=1).flatten()
         # Permutation which sorts the array pweights in descending order. That is, pweights[apweights] = pweights[::-1].sort()
         # Hence apweights[i] = element with the i-th smallest pweight.
-        self.apweights = np.argsort(-self.pweights)
+        self.apweights = np.argsort(-self.pweights, kind='mergesort')
         # Permutation which sorts the array pdistances. That is, pweights[apweights] = pweights.sort()
         # Hence apdistances[i] = position with the i-th smallest pdistance.
-        self.apdistances = np.argsort(self.pdistances)
+        self.apdistances = np.argsort(self.pdistances, kind='mergesort')
         # Inverse permutation of apweights. That is, pweights_pos[i] is the position of the i element in the sorted array.
         self.pweights_pos = invertPermutation(self.apweights)
 
