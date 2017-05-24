@@ -2,6 +2,11 @@ import os
 import numpy as np
 import sys
 
+sys.path.insert(0, './code')
+
+from Timer import Timer
+
+
 # Take the argument.
 if len(sys.argv) < 2:
     print("Error: Needs an instance as argument")
