@@ -44,7 +44,7 @@ echo "" >> $SCRIPT
 echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
-echo "python $1 $2" >> $SCRIPT
+echo "$1" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
 echo "" >> $SCRIPT
