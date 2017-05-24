@@ -11,7 +11,7 @@ from Timer import *
 
 import AbstractSolution
 
-Execution = Enum('Execution', 'fixed_time iterations convergence')
+Execution = Enum('Execution', 'fixed_time iterations fixed_evaluations convergence')
 
 class Heuristic:
 
@@ -19,9 +19,19 @@ class Heuristic:
     heuristics implemented as subclase
     """    
 
-    def __init__(self, problem):
+    def __init__(self, problem, verbose = False):
+        # Problem which the heuristic solves
         self.problem = problem
-        self.next_point_to_image_time = 0.001
+        # Time between two consecutive points in an image.
+        self.next_point_to_image_time = 0
+        # If verbose = True, then the heuristic prints information about the best solution.
+        self.verbose = verbose
+        # Number of solutions evaluated in the execution.
+        self.num_evaluations = 0
+        # Current iteration in the heuristic.
+        self.current_it = 0
+        # Name of the auxiliar info saved to csv.
+        self.aux_info_name = "not defined"
 
     def initialComputations1(self):
         raise NotImplementedError
@@ -35,7 +45,33 @@ class Heuristic:
     def finalComputations(self):
         pass
 
-    def generateSolution(self, max_executing_time = 0, num_iterations = 0, etype = 1):
+    def saveValueCSV(self):
+        self.next_point_to_image_time += 0.001
+        self.plot_ovalues.append(self.best_sol.getObjectiveValue())
+        self.timer.save()
+        self.saveAuxCSV()
+
+    def saveCSV(self):
+        image_data_file = "objective_value.csv"
+        with open(image_data_file, 'w') as f:
+            writer = csv.writer(f, delimiter=',')
+            writer.writerows([("Time", "Objective value")])
+            writer.writerows(zip(self.timer.record(), self.plot_ovalues))
+        if len(self.aux_info) > 0:
+            image_data_file2 = self.aux_info_name + ".csv"
+            with open(image_data_file2, 'w') as f:
+                writer = csv.writer(f, delimiter=',')
+                writer.writerows([("Time", self.aux_info_name)])
+                writer.writerows(zip(self.timer.record(), self.aux_info))
+
+    def saveAuxCSV(self):
+        pass
+
+    def saveExecutionInformation(self, max_executing_time, total_num_iterations, total_num_evaluations, etype):
+        pass
+
+    def generateSolution(self, max_executing_time = 0, total_num_iterations = 0,
+                         total_num_evaluations = 0, etype = 1, csv = False):
         """Generate a new solution with the heuristic code.
         - max_executing_time: float Time data for the execution.
         - etype: Type of the execution. It is an Execution enum.
@@ -45,57 +81,72 @@ class Heuristic:
         """
 
         executing_time = max_executing_time
-        iterations = 0
-        ovalues = []
+        self.current_it = 0
+        self.num_evaluations = 0
+        self.next_point_to_image_time = 0
+        self.plot_ovalues = []
+        self.aux_info = []
         self.best_sol = None
 
-        # Starts the timer.
-        timer = Timer()
-        timer.start()
+        # Saves the execution information if needed.
+        self.saveExecutionInformation(max_executing_time, total_num_iterations, total_num_evaluations, etype)
+
+        # Starts the self.timer.
+        self.timer = Timer()
+        self.timer.start()
 
         # Makes the heuristic's initial computations.
         self.initialComputations1()
+        if self.verbose:
+            print(" - Initial computations. Number of evaluations", self.num_evaluations, ".", self.best_sol)
+        
+        if ((executing_time > 0 and etype != Execution.iterations and etype != Execution.fixed_evaluations) or
+            (etype == Execution.iterations and total_num_iterations > 0) or
+            (etype == Execution.fixed_evaluations and total_num_evaluations > 0)):
 
-        if (executing_time > 0 and etype != Execution.iterations) or (etype == Execution.iterations and num_iterations > 0):
-
-            # Adds the initial points.    
-            ovalues.append(self.best_sol.getObjectiveValue())
-            timer.save()
+            # Adds the initial points.
+            self.saveValueCSV()
             
             # Make second computations of the heuristic and take measures if needed.
             self.initialComputations2()
             # Get the points for the images.
-            if timer.getTime() >= self.next_point_to_image_time:
-                self.next_point_to_image_time += 0.001
-                ovalues.append(self.best_sol.getObjectiveValue())
-                timer.save()
-        
-            # Keep iterating while there is time or iterations left.
-            while (etype != Execution.iterations and timer.getTime() < executing_time) or (etype == Execution.iterations and iterations < num_iterations):
-                self.iteration()
-                iterations+=1
-                # Get the points for the images.
-                if timer.getTime() >= self.next_point_to_image_time:
-                    self.next_point_to_image_time += 0.001
-                    ovalues.append(self.best_sol.getObjectiveValue())
-                    timer.save()
+            if self.timer.getTime() >= self.next_point_to_image_time:
+                self.saveValueCSV()
 
+            ovalue = self.best_sol.getObjectiveValue()
+                
+            # Keep iterating while there is time or iterations left.
+            while ((etype != Execution.iterations and etype != Execution.fixed_evaluations and
+                    self.timer.getTime() < executing_time) or
+                   (etype == Execution.iterations and self.current_it < total_num_iterations) or
+                   (etype == Execution.fixed_evaluations and self.num_evaluations < total_num_evaluations)):
+
+                self.iteration()
+                self.current_it+=1
+                if self.verbose:
+                    print(" - Iteration " + str(self.current_it) + ". Number of evaluations " + str(self.num_evaluations) + ".", self.best_sol)
+
+                # Get the points for the images.
+                if self.timer.getTime() >= self.next_point_to_image_time:
+                    self.saveValueCSV()
+                    
                 # If the execution is of etype convergence, then the execution time
                 # is updated when needed.
                 # That is, if the new solution is better than the last one.
-                if etype == Execution.convergence and ovalue[-1] < ovalue[-2]:
-                    executing_time = max_executing_time + timer.getTime()
- 
-            # Do the final computations.
-            self.finalComputations()
-            if etype == Execution.iterations:
-                executing_time = timer.getTime()
-                ovalues.append(self.best_sol.getObjectiveValue())
+                if etype == Execution.convergence and self.best_sol.getObjectiveValue() < ovalue:
+                    executing_time = max_executing_time + self.timer.getTime()
+                    ovalue = self.best_sol.getObjectiveValue()
 
-            image_data_file = "objective_value.csv"
-            with open(image_data_file, 'w') as f:
-                writer = csv.writer(f, delimiter=',')
-                writer.writerows(zip(timer.record(), ovalues))
+        # Do the final computations.
+        self.finalComputations()
+        self.saveValueCSV()
+
+        print("Time (s):", self.timer.getTime())
+        print("Number of evaluations:", self.num_evaluations)
+        print("Number of iterations:", self.current_it)
+        
+        if csv:
+            self.saveCSV()
 
         return self.best_sol
 

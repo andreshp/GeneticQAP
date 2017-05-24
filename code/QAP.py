@@ -25,9 +25,11 @@ class QAP(AbstractProblem):
 
         last_pos = f.tell()
         row = f.readline()
-        while len(row) < self.N:
+        i = 0
+        while len(row) < self.N and i < 10:
             last_pos = f.tell()
             row = f.readline()
+            i+=1
         f.seek(last_pos)
             
         self.weights = np.array([list(map(int, f.readline().split())) for i in range(0,self.N)], dtype = np.int64)

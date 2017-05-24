@@ -5,7 +5,7 @@
 #########################################################################
 
 import random
-from numba import jit, int64, void, boolean          # import the decorator
+from numba import jit, int64, float64, void, boolean          # import the decorator
 from enum import Enum
 
 from AbstractSolution import *
@@ -70,26 +70,45 @@ class Solution(AbstractSolution):
 
         return Solution(self.problem, False, s1), Solution(self.problem, False, s2)
         
-    def mutate(self):
+    def mutate(self, num_mut = 1):
         """ Mutates the solution. The mutation consist of applying a random transposition."""
-        i = random.randint(0, self.problem.N-1)
-        j = random.randint(0, self.problem.N-1)
-        if self.ovalue > 0:
-            self.ovalue += applyTranspositionQAP(self.perm, i, j, self.problem.weights, self.problem.distances)
-    
-        self.perm[i], self.perm[j] = exchange(self.perm[i], self.perm[j])
+        for m in range(0, num_mut):
+            i = random.randint(0, self.problem.N-1)
+            j = random.randint(0, self.problem.N-1)
+            if self.ovalue > 0:
+                self.ovalue += applyTranspositionQAP(self.perm, i, j,
+                                                     self.problem.weights, self.problem.distances)
+
+            self.perm[i], self.perm[j] = exchange(self.perm[i], self.perm[j])
+
+    def mutateSubList(self, size = -1):
+        """ Mutates the solution. The mutation consist of rearranging a random sublist of given size."""
+        t = size if size > 0 else self.problem.N // 4
+        shuffleRandomSublist(self.perm, t)
+        self.ovalue = -1
+
+ 
+    def distance(self, s2):
+        return numbaDistance(self.perm, s2.perm)
         
     def fullPrint(self):
         """ Prints the solution information completely. """
         print("The solution has objective value", self.getObjectiveValue(), ".")
-        print("The solution has been built by the algorithm", self.algorithm, ".")
+        #print("The solution has been built by the algorithm", self.algorithm, ".")
         print("The permutation is:")
         print(self.perm)
 
+    def __eq__(self, s2):
+        """ Two solutions are equal if they permutations are equal."""
+        return s2 != None and np.alltrue(self.perm == s2.perm)
 
 @jit(boolean(int64[:]), cache=True)
 def isPerm(perm):
     return np.array_equal(np.sort(perm), np.array(range(0,len(perm))))
+
+@jit(int64(int64[:], int64[:]), cache=True, nopython=True)
+def numbaDistance(perm1, perm2):
+    return np.sum(perm1 != perm2)
         
 @jit(int64(int64[:], int64[:,:], int64[:,:]), cache=True, nopython=True)
 def numbaComputeObjectiveValueQAP(perm, weights, distances):
@@ -113,6 +132,21 @@ def applyTranspositionQAP(perm, i, j, weights, distances):
             s += weights[j, k] * (distances[perm[i],perm[k]] - distances[perm[j],perm[k]])
             s += weights[k, j] * (distances[perm[k],perm[i]] - distances[perm[k],perm[j]])
     return s
+
+@jit(void(int64[:], int64), cache=True, nopython=True)
+def shuffleRandomSublist(l, size):
+    """ Shuffle a random sublist of the given size."""
+    i = random.randint(0,len(l)-1)
+    j = (i+size) % len(l)
+    if i < j:
+        np.random.shuffle(l[i:j])
+    else:
+        aux = np.zeros(size, dtype=np.int64)
+        aux[:len(l)-i] = l[i:]
+        aux[len(l)-i:] = l[:j]
+        np.random.shuffle(aux)
+        l[i:] = aux[:len(l)-i]
+        l[:j] = aux[len(l)-i:]
 
 @jit(void(int64[:], int64[:], int64[:], int64[:]), cache=True, nopython=True)
 def crossPMX(s1, s2, p1, p2):
@@ -225,3 +259,57 @@ def crossPosition(s1, s2, p1, p2):
             s1[i] = p1[not_equal[j]]
             s2[i] = p1[not_equal[-j-1]]
             j += 1
+
+@jit(void(int64[:], int64[:], int64[:], int64[:]), cache=True, nopython=True)
+def crossOX(s1, s2, p1, p2):
+    """ OX crossover (order crossover) implemented with numba.
+    It selects uniformly at random two integers 0 <= i,j < N which are named cut points.
+    We take s1[i:j+1] = p1[i:j+1] and s2[i:j+1] = p2[i:j+1]. 
+    Now we fill s1 starting by s1[(j+1)%len(p1)] with the order of p2.
+    We proceed analogously for s2.
+    Example: p1 = (1 2 3 4 5 6 7) and p2 = (3 4 1 5 6 7 2); i = 2, j = 4.
+    Then we have h1 = (2 1 3 4 5 6 7) and h2 = (3 4 1 5 6 7 2).
+    """
+
+    i = random.randint(0, len(p1)-1)
+    j = random.randint(0, len(p1)-1)
+
+    s1_used = np.zeros(len(p1), dtype=np.bool_)
+    s2_used = np.zeros(len(p1), dtype=np.bool_)
+
+    # Does the assigments s1[i:j+1] = p2[i:j+1] and s2[i:j+1] = p1[i:j+1].
+    t = i
+    while True:
+        s1[t] = p1[t]
+        s1_used[p1[t]] = True
+        s2[t] = p2[t]
+        s2_used[p2[t]] = True
+        if t == j:
+            break
+        t = (t+1)%len(p1)
+
+    # Find p1[j] in p2.
+    k = 0
+    while p2[k] != p1[j]:
+        k = (k+1)%len(p1)
+
+    # Fill h1 with p2
+    t1 = (t+1)%len(p1)
+    while t1 != i:
+        k = (k+1)%len(p1)
+        if not s1_used[p2[k]]:
+            s1[t1] = p2[k]
+            t1 = (t1+1)%len(p1)
+    
+    # Find p2[j] in p1.
+    k = 0
+    while p1[k] != p2[j]:
+        k = (k+1)%len(p1)
+
+    # Fill h2 with p1
+    t2 = (t+1)%len(p1)
+    while t2 != i:
+        k = (k+1)%len(p1)
+        if not s2_used[p1[k]]:
+            s2[t2] = p1[k]
+            t2 = (t2+1)%len(p1)

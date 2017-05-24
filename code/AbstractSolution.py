@@ -74,4 +74,22 @@ class AbstractSolution:
         It must be implemented for each problem.
         """
         raise NotImplementedError
-                
+
+    def __str__(self):
+        return "Objective value: " + str(self.getObjectiveValue())
+    
+    def __gt__(self, s2):
+        """A solution is better than other solution if it has less objective value."""
+        return self.getObjectiveValue() < s2.getObjectiveValue()
+
+    def __ge__(self, s2):
+        """A solution is better than other solution if it has less objective value."""
+        return self.getObjectiveValue() <= s2.getObjectiveValue()
+
+    def __lt__(self, s2):
+        """A solution is better than other solution if it has less objective value."""
+        return self.getObjectiveValue() > s2.getObjectiveValue()
+
+    def __le__(self, s2):
+        """A solution is better than other solution if it has less objective value."""
+        return self.getObjectiveValue() >= s2.getObjectiveValue()

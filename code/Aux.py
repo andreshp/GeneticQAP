@@ -5,9 +5,10 @@
 #########################################################################
 
 import numpy as np
-from numba import jit, int64, void          # import the decorator
+from numba import jit, int64, void, types          # import the decorator
+import random
 
-@jit(int64[:](int64,int64))
+@jit(types.UniTuple(int64,2)(int64,int64), cache=True, nopython=True)
 def exchange(a, b):
     return b, a
 
@@ -16,3 +17,7 @@ def put0First(perm):
     p=np.where(perm == 0)[0][0]
     return np.concatenate([perm[p:], perm[0:p]])
 
+@jit(void(int64), cache=True, nopython=True)
+def setSeed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
