@@ -14,7 +14,7 @@ fi
 
 #--------------------------------- VARIABLES ----------------------------------#
 
-FILE_NAME="`echo $1 | cut -d' ' -f2 | cut -d'.' -f1`"
+FILE_NAME="`echo $@ | cut -d' ' -f3 | cut -d'.' -f1`"
 DICT=`pwd`; #DICT=${DICT:0:-5}
 SCRIPT="$FILE_NAME.sh"
 RESULTS=results.sol
@@ -44,7 +44,7 @@ echo "" >> $SCRIPT
 echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
-echo "$1" >> $SCRIPT
+echo "$@" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
 echo "" >> $SCRIPT

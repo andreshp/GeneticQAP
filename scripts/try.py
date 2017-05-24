@@ -22,7 +22,7 @@ def execute(parameters, sol_dir, num_executions):
         command = " ".join([parameters,"-seed", str(i)])
         os.makedirs(sol_dir, exist_ok = True)
         if server:
-            os.system("./scripts/execute_instance.sh " + command)
+            os.system("bash ./scripts/execute_instance.sh " + command)
         else:
             os.system(command + " > " + sol)
         #os.rename("objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
