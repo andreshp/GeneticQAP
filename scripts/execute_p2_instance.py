@@ -59,16 +59,16 @@ for mp in MP:
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
 
-#----------------------------------- ILS-ES -----------------------------------#
+#----------------------------------- ILS-SA -----------------------------------#
 
-print("Executing ILS-ES...")
+print("Executing ILS-SA...")
 timer = Timer()
 timer.start()
 sol_dir_suffix = "ILS-SA"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, sol_dir_suffix)
 parameters = " ".join(["python", code, instance, "ils", execution_type_2,
-                        "-ls sa -tf -0.001 -lsme 50000"])
+                        "-ls sa -lsme 50000"])
 execute(parameters, sol_dir, suffix, num_executions, server)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())

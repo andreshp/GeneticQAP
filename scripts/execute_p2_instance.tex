@@ -1,0 +1,132 @@
+% Created 2017-05-25 Thu 15:07
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Andrés Herrera Poyatos}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={Andrés Herrera Poyatos},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 25.1.2 (Org mode 9.0.5)}, 
+ pdflang={English}}
+\begin{document}
+
+\tableofcontents
+
+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+
+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+
+import os
+import numpy as np
+import sys
+
+sys.path.insert(0, './code')
+
+from Timer import Timer
+from Aux import execute
+
+if len(sys.argv) < 2:
+    print("Error: Needs an instance as argument")
+    sys.exit()
+
+instance = sys.argv[1]
+ninstance = instance.replace('.dat', '').split('/')[-1]
+execution\(_{\text{type}}\) = "e 50000"
+execution\(_{\text{type}}\)\(_{\text{2}}\) = "i 24"
+sols\(_{\text{dir}}\) = "./results/p2/" + ninstance 
+num\(_{\text{executions}}\) = 30
+server = len(sys.argv) > 2
+code = "./code/main\(_{\text{ma.py}}\)"
+
+\#------------------------------------ SA ------------------------------------\#
+
+print("Executing simulating annealing\ldots{}")
+timer = Timer()
+timer.start()
+TF = [0.001, -0.001]
+for t in TF:
+    sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "SA/t="+str(t)
+    suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("/", "\_")
+    sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+    parameters = " ".join(["python", code, instance, "sa", execution\(_{\text{type}}\),
+                            "-ft", str(t)])
+    execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
+\#------------------------------------ ILS -----------------------------------\#
+
+MP = [-1, 1]
+print("Executing ILS\ldots{}")
+timer = Timer()
+timer.start()
+for mp in MP:
+    sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "ILS/mp="+str(mp)
+    suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("/", "\_")
+    sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+    parameters = " ".join(["python", code, instance, "ils", execution\(_{\text{type}}\)\(_{\text{2}}\),
+                            "-lsme 50000 -mp", str(mp)])
+    execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
+\#----------------------------------- ILS-SA -----------------------------------\#
+
+print("Executing ILS-SA\ldots{}")
+timer = Timer()
+timer.start()
+sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "ILS-SA"
+suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("/", "\_")
+sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+parameters = " ".join(["python", code, instance, "ils", execution\(_{\text{type}}\)\(_{\text{2}}\),
+                        "-ls sa -ft -0.001 -lsme 50000"])
+execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
+\#------------------------------------ GRASP -----------------------------------\#
+
+greedy = ['ind', 'pairs']
+
+print("Executing GRASP\ldots{}")
+timer = Timer()
+timer.start()
+for g in greedy:
+    sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "GRASP/"\sout{g}"\emph{2optb"
+    suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("}", "\_")
+    sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+    parameters = " ".join(["python", code, instance, "grasp", execution\(_{\text{type}}\)\(_{\text{2}}\),
+                           "-gr", g, "-ls 2optb -gra 0.3 -lsme 50000"])
+    execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
+print("Executing Randomized Greedy\ldots{}")
+timer = Timer()
+timer.start()
+for g in greedy:
+    sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "GRASP/"\sout{g}"\emph{none"
+    suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("}", "\_")
+    sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+    parameters = " ".join(["python", code, instance, "grasp i 0",
+                            "-gr", g, "-ls none -gra 0.3"])
+    execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+\end{document}
