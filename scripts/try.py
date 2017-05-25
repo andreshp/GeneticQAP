@@ -30,7 +30,7 @@ def execute(parameters, sol_dir, num_executions):
             os.system(" ".join(["bash ./scripts/execute_instance.sh", sol_dir, str(i), command]))
         else:
             os.system(command + " > " + sol)
-        os.rename("objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
+        #os.rename("objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
 
 print("Executing simulating annealing...")
 timer = Timer()

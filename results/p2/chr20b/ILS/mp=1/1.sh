@@ -12,15 +12,14 @@
 #$ -q media
 
 # File to wich the output is redirected.
-#$ -o ./results/p2/chr20b/SA/t=-0.001/1.sol
+#$ -o ./results/p2/chr20b/ILS/mp=1/1.sol
 
 # File to wich the error stream is redirected.
-#$ -e ./results/p2/chr20b/SA/t=-0.001/1.log
+#$ -e ./results/p2/chr20b/ILS/mp=1/1.log
 
 # Set working directory to the current one
 #$ -cwd
 
-python ./code/main_ma.py ./instances/chr20b.dat sa e 50000 -ft -0.001 -csv -seed 1
+python ./code/main_ma.py ./instances/chr20b.dat ils i 24 -lsme 50000 -csv -seed 1; mv /tmp/objective_value.csv ./results/p2/chr20b/ILS/mp=1/objective_value_1.csv
 
 wait $!
-

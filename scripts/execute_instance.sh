@@ -16,8 +16,8 @@ fi
 
 INSTANCE="`echo $@ | cut -d' ' -f5 | cut -d'/' -f3 | cut -d'.' -f1`"
 FILE_NAME=$2
-DICT=$1 #`pwd`; #DICT=${DICT:0:-5} 
-SCRIPT=$FILE_NAME.sh
+DIR=$1 #`pwd`; #DICT=${DICT:0:-5} 
+SCRIPT=$DIR/$FILE_NAME.sh
 RESULTS=$FILE_NAME.sol
 ERRORS=$FILE_NAME.log
 COMMAND="`echo $@ | cut -d' ' -f3-`"
@@ -38,18 +38,17 @@ echo "# Queue for the job." >> $SCRIPT
 echo "#$ -q media" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# File to wich the output is redirected." >> $SCRIPT
-echo "#$ -o $DICT/$RESULTS" >> $SCRIPT
+echo "#$ -o $DIR/$RESULTS" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# File to wich the error stream is redirected." >> $SCRIPT
-echo "#$ -e `echo $DICT/$ERRORS`" >> $SCRIPT
+echo "#$ -e `echo $DIR/$ERRORS`" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
-echo "$COMMAND" >> $SCRIPT
+echo "$COMMAND; mv /tmp/objective_value.csv $DIR/objective_value_$FILE_NAME.csv" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
-echo "" >> $SCRIPT
 
 #------------------------------ EXECUTE SCRIPT --------------------------------#
 
