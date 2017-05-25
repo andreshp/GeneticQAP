@@ -49,8 +49,9 @@ print("Executing ILS...")
 timer = Timer()
 timer.start()
 for mp in MP:
-    sol_dir = os.path.join(sols_dir, "ILS/mp="+str(mp))
+    sol_dir_suffix = "ILS/mp="+str(mp)
     suffix = sol_dir_suffix.replace("/", "_")
+    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
                             "-lsme 50000"])
     execute(parameters, sol_dir, suffix, num_executions, server)
@@ -61,8 +62,9 @@ print("Elapsed time in seconds:", timer.getTime())
 print("Executing ILS-ES...")
 timer = Timer()
 timer.start()
+sol_dir_suffix = "ILS-SA"
 suffix = sol_dir_suffix.replace("/", "_")
-sol_dir = os.path.join(sols_dir, "ILS-SA/")
+sol_dir = os.path.join(sols_dir, sol_dir_suffix)
 parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
                         "-ls sa -lsme 50000"])
 execute(parameters, sol_dir, suffix, num_executions, server)
@@ -76,8 +78,9 @@ print("Executing GRASP...")
 timer = Timer()
 timer.start()
 for g in greedy:
+    sol_dir_suffix = "GRASP/"+g+"/2optb"
     suffix = sol_dir_suffix.replace("/", "_")
-    sol_dir = os.path.join(sols_dir, "GRASP/"+g+"/2optb")
+    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python ./code/main_ma.py", instance, "grasp", execution_type_2,
                            "-gr", g, "-ls 2optb -gra 0.3 -lsme 50000"])
     execute(parameters, sol_dir, suffix, num_executions, server)
@@ -87,8 +90,9 @@ print("Executing Randomized Greedy...")
 timer = Timer()
 timer.start()
 for g in greedy:
+    sol_dir_suffix = "GRASP/"+g+"/none"
     suffix = sol_dir_suffix.replace("/", "_")
-    sol_dir = os.path.join(sols_dir, "GRASP/"+g+"/none")
+    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python ./code/main_ma.py", instance, "grasp i 0",
                             "-gr", g, "-ls none -gra 0.3"])
     execute(parameters, sol_dir, suffix, num_executions, server)
