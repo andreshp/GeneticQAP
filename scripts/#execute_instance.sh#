@@ -14,12 +14,12 @@ fi
 
 #--------------------------------- VARIABLES ----------------------------------#
 
-INSTANCE="`echo $@ | cut -d' ' -f5 | cut -d'/' -f3 | cut -d'.' -f1`"
+#"`echo $@ | cut -d' ' -f5 | cut -d'/' -f3 | cut -d'.' -f1`"
 FILE_NAME=$2
-DICT=$1 #`pwd`; #DICT=${DICT:0:-5} 
-SCRIPT=$FILE_NAME.sh
-RESULTS=$FILE_NAME.sol
-ERRORS=$FILE_NAME.log
+DICT=$1 #`pwd`; DICT=${DICT:0:-5} 
+SCRIPT="$FILE_NAME.sh"
+RESULTS=.sol
+ERRORS=results.log
 COMMAND="`echo $@ | cut -d' ' -f3-`"
 
 #------------------------------- BUILD SCRIPT ---------------------------------#
@@ -32,21 +32,21 @@ echo "# Executes an optimization problem in Hercules" >> $SCRIPT
 echo "#################################################" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# Name of the job." >> $SCRIPT
-echo "#$ -N Opt-$INSTANCE" >> $SCRIPT
+echo "#$ -N Optimization-$FILE_NAME" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# Queue for the job." >> $SCRIPT
 echo "#$ -q media" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# File to wich the output is redirected." >> $SCRIPT
-echo "#$ -o $DICT/$RESULTS" >> $SCRIPT
+echo "#$ -o $RESULTS" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# File to wich the error stream is redirected." >> $SCRIPT
-echo "#$ -e `echo $DICT/$ERRORS`" >> $SCRIPT
+echo "#$ -e `echo $ERRORS`" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
-echo "$COMMAND" >> $SCRIPT
+echo "$@" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
 echo "" >> $SCRIPT
