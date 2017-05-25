@@ -35,7 +35,7 @@ echo "# Name of the job." >> $SCRIPT
 echo "#$ -N Opt-$INSTANCE" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# Queue for the job." >> $SCRIPT
-echo "#$ -q media" >> $SCRIPT
+echo "#$ -q larga" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "# File to wich the output is redirected." >> $SCRIPT
 echo "#$ -o $DIR/$RESULTS" >> $SCRIPT

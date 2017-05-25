@@ -54,7 +54,7 @@ for mp in MP:
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python", code, instance, "ils", execution_type_2,
-                            "-lsme 50000 -mp", mp])
+                            "-lsme 50000 -mp", str(mp)])
     execute(parameters, sol_dir, suffix, num_executions, server)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
