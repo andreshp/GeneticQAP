@@ -46,7 +46,7 @@ echo "" >> $SCRIPT
 echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
-echo "$COMMAND; mv /tmp/objective_value_${@: -1}.csv $DIR/objective_value_${@: -1}.csv" >> $SCRIPT
+echo "$COMMAND; mv /tmp/objective_value_${@: -1}.csv $DIR/objective_value_$FILE_NAME.csv" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
 

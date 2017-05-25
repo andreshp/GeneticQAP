@@ -23,7 +23,7 @@ ninstance = instance.replace('.dat', '').split('/')[-1]
 execution_type = "e 50000"
 execution_type_2 = "i 24"
 sols_dir = "./results/p2/" + ninstance 
-num_executions = 1
+num_executions = 30
 server = len(sys.argv) > 2
 code = "./code/main_ma.py"
 
@@ -37,10 +37,11 @@ for t in TF:
     sol_dir_suffix = "SA/t="+str(t)
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python ./code/main_ma.py", instance, "sa", execution_type,
+    parameters = " ".join(["python", code, instance, "sa", execution_type,
                             "-ft", str(t)])
     execute(parameters, sol_dir, suffix, num_executions, server)
-print("Elapsed time in seconds:", timer.getTime())
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
 
 #------------------------------------ ILS -----------------------------------#
 
@@ -52,10 +53,11 @@ for mp in MP:
     sol_dir_suffix = "ILS/mp="+str(mp)
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
-                            "-lsme 50000"])
+    parameters = " ".join(["python", code, instance, "ils", execution_type_2,
+                            "-lsme 50000 -mp", mp])
     execute(parameters, sol_dir, suffix, num_executions, server)
-print("Elapsed time in seconds:", timer.getTime())
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
 
 #----------------------------------- ILS-ES -----------------------------------#
 
@@ -65,10 +67,11 @@ timer.start()
 sol_dir_suffix = "ILS-SA"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
-                        "-ls sa -lsme 50000"])
+parameters = " ".join(["python", code, instance, "ils", execution_type_2,
+                        "-ls sa -tf -0.001 -lsme 50000"])
 execute(parameters, sol_dir, suffix, num_executions, server)
-print("Elapsed time in seconds:", timer.getTime())
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
 
 #------------------------------------ GRASP -----------------------------------#
 
@@ -81,10 +84,11 @@ for g in greedy:
     sol_dir_suffix = "GRASP/"+g+"/2optb"
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python ./code/main_ma.py", instance, "grasp", execution_type_2,
+    parameters = " ".join(["python", code, instance, "grasp", execution_type_2,
                            "-gr", g, "-ls 2optb -gra 0.3 -lsme 50000"])
     execute(parameters, sol_dir, suffix, num_executions, server)
-print("Elapsed time in seconds:", timer.getTime())
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing Randomized Greedy...")
 timer = Timer()
@@ -93,7 +97,8 @@ for g in greedy:
     sol_dir_suffix = "GRASP/"+g+"/none"
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python ./code/main_ma.py", instance, "grasp i 0",
+    parameters = " ".join(["python", code, instance, "grasp i 0",
                             "-gr", g, "-ls none -gra 0.3"])
     execute(parameters, sol_dir, suffix, num_executions, server)
-print("Elapsed time in seconds:", timer.getTime())
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
