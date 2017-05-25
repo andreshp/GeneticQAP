@@ -52,7 +52,7 @@ class Heuristic:
         self.saveAuxCSV()
 
     def saveCSV(self):
-        image_data_file = "./objective_value.csv"
+        image_data_file = "/tmp/objective_value.csv"
         with open(image_data_file, 'w') as f:
             writer = csv.writer(f, delimiter=',')
             writer.writerows([("Time", "Objective value")])
