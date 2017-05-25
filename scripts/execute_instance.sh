@@ -16,7 +16,7 @@ fi
 
 INSTANCE="`echo $@ | cut -d' ' -f5 | cut -d'/' -f3 | cut -d'.' -f1`"
 FILE_NAME=$2
-DIR=$1 #`pwd`; #DICT=${DICT:0:-5} 
+DIR=$1 #`pwd`; #DIR=${DIR:0:-5} 
 SCRIPT=$DIR/$FILE_NAME.sh
 RESULTS=$FILE_NAME.sol
 ERRORS=$FILE_NAME.log
@@ -46,7 +46,7 @@ echo "" >> $SCRIPT
 echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
-echo "$COMMAND; mv /tmp/objective_value.csv $DIR/objective_value_$FILE_NAME.csv" >> $SCRIPT
+echo "$COMMAND; mv /tmp/objective_value_${@: -1}.csv $DIR/objective_value_$FILE_NAME.csv" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
 

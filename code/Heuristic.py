@@ -6,6 +6,7 @@
 
 from enum import Enum
 import csv
+import os
 
 from Timer import *
 
@@ -51,14 +52,15 @@ class Heuristic:
         self.timer.save()
         self.saveAuxCSV()
 
-    def saveCSV(self):
-        image_data_file = "/tmp/objective_value.csv"
+    def saveCSV(self, image_data_folder, suffix):
+        suffix = "" if suffix == None else "_"+suffix
+        image_data_file = os.path.join(image_data_folder, "objective_value"+ suffix + ".csv")
         with open(image_data_file, 'w') as f:
             writer = csv.writer(f, delimiter=',')
             writer.writerows([("Time", "Objective value")])
             writer.writerows(zip(self.timer.record(), self.plot_ovalues))
         if len(self.aux_info) > 0:
-            image_data_file2 = self.aux_info_name + ".csv"
+            image_data_file2 = os.path.join(image_data_folder, self.aux_info_name.lower()+ suffix + ".csv")
             with open(image_data_file2, 'w') as f:
                 writer = csv.writer(f, delimiter=',')
                 writer.writerows([("Time", self.aux_info_name)])
@@ -71,7 +73,7 @@ class Heuristic:
         pass
 
     def generateSolution(self, max_executing_time = 0, total_num_iterations = 0,
-                         total_num_evaluations = 0, etype = 1, csv = False):
+                         total_num_evaluations = 0, etype = 1, csvf = None, csvs = None):
         """Generate a new solution with the heuristic code.
         - max_executing_time: float Time data for the execution.
         - etype: Type of the execution. It is an Execution enum.
@@ -145,8 +147,8 @@ class Heuristic:
         print("Number of evaluations:", self.num_evaluations)
         print("Number of iterations:", self.current_it)
         
-        if csv:
-            self.saveCSV()
+        if csvf != None:
+            self.saveCSV(csvf, csvs)
 
         return self.best_sol
 

@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, './code')
 
 from Timer import Timer
+from Aux import execute
 
 # Take the argument.
 if len(sys.argv) < 2:
@@ -26,17 +27,6 @@ num_executions = 1
 server = len(sys.argv) > 2
 code = "./code/main_ma.py"
 
-def execute(parameters, sol_dir, num_executions):
-    os.makedirs(sol_dir, exist_ok = True)
-    for i in range(1, num_executions+1):
-        command = " ".join([parameters,"-seed", str(i)])
-        if server:
-            os.system(" ".join(["bash", "./scripts/execute_instance.sh", sol_dir, str(i), command]))
-        else:
-            sol = sol_dir + "/"+str(i)+".sol"
-            os.system(command + " > " + sol)
-            os.rename("/tmp/objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
-
 #------------------------------------ SA ------------------------------------#
 
 print("Executing simulating annealing...")
@@ -44,10 +34,12 @@ timer = Timer()
 timer.start()
 TF = [0.001, -0.001]
 for t in TF:
-    sol_dir = os.path.join(sols_dir, "SA/t="+str(t))
+    sol_dir_suffix = "SA/t="+str(t)
+    suffix = sol_dir_suffix.replace("/", "_")
+    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python ./code/main_ma.py", instance, "sa", execution_type,
-                            "-ft", str(t), "-csv"])
-    execute(parameters, sol_dir, num_executions)
+                            "-ft", str(t)])
+    execute(parameters, sol_dir, suffix, num_executions)
 print("Elapsed time in seconds:", timer.getTime())
 
 #------------------------------------ ILS -----------------------------------#
@@ -58,9 +50,10 @@ timer = Timer()
 timer.start()
 for mp in MP:
     sol_dir = os.path.join(sols_dir, "ILS/mp="+str(mp))
+    suffix = sol_dir_suffix.replace("/", "_")
     parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
-                            "-lsme 50000 -csv"])
-    execute(parameters, sol_dir, num_executions)
+                            "-lsme 50000"])
+    execute(parameters, sol_dir, suffix, num_executions)
 print("Elapsed time in seconds:", timer.getTime())
 
 #----------------------------------- ILS-ES -----------------------------------#
@@ -68,10 +61,11 @@ print("Elapsed time in seconds:", timer.getTime())
 print("Executing ILS...")
 timer = Timer()
 timer.start()
+suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, "ILS-SA/")
 parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
-                        "-ls sa -lsme 50000 -csv"])
-execute(parameters, sol_dir, num_executions)
+                        "-ls sa -lsme 50000"])
+execute(parameters, sol_dir, suffix, num_executions)
 print("Elapsed time in seconds:", timer.getTime())
 
 #------------------------------------ GRASP -----------------------------------#
@@ -82,18 +76,20 @@ print("Executing GRASP...")
 timer = Timer()
 timer.start()
 for g in greedy:
+    suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, "GRASP/"+g+"/2optb")
     parameters = " ".join(["python ./code/main_ma.py", instance, "grasp", execution_type_2,
-                           "-gr", g, "-ls 2optb -gra 0.3 -lsme 50000 -csv"])
-    execute(parameters, sol_dir, num_executions)                           
+                           "-gr", g, "-ls 2optb -gra 0.3 -lsme 50000"])
+    execute(parameters, sol_dir, suffix, num_executions)
 print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing Randomized Greedy...")
 timer = Timer()
 timer.start()
 for g in greedy:
+    suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, "GRASP/"+g+"/none")
     parameters = " ".join(["python ./code/main_ma.py", instance, "grasp i 0",
-                            "-gr", g, "-ls none -gra 0.3 -csv"])
-    execute(parameters, sol_dir, num_executions)                           
+                            "-gr", g, "-ls none -gra 0.3"])
+    execute(parameters, sol_dir, suffix, num_executions)
 print("Elapsed time in seconds:", timer.getTime())

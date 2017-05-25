@@ -25,7 +25,8 @@ if __name__ == "__main__":
     parser.add_argument('execution', metavar='-e', type=str, help='Type of execution. Options: t, i, e, c')
     parser.add_argument('exe_parameter', metavar='-ep', type=int, help='Execution parameter.')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose execution.')
-    parser.add_argument('-csv', '--csv', action='store_true', help='Saves some csv with the algorithm data for making plots.')
+    parser.add_argument('-csvf', '--csv_folder', type=str, help='Directory where saving some csv with the algorithm data for making plots. Default: None (no csv is saved).')
+    parser.add_argument('-csvs', '--csv_suffix', type=str, help='Suffix appended to the name of the csv files. Default: None (no suffix). Example: csv_folder = /tmp, csv_suffix = ils. The csv is saved as "/tmp/objective_value_ils.csv".')
     parser.add_argument('-ls', '--local_search', type=str, help='Local search used. Options: 2opt, 2optb, sa, none. (Default: 2opt)')
     parser.add_argument('-gr', '--greedy', type=str, help='Greedy algorithm used in GRASP. Options: ind, pairs. (Default: ind)')
     parser.add_argument('-gra', '--greedy_alpha', type=float, help='Parameter used for building the lrc in randomized greedy algorithms. (Default: 0.05)')
@@ -82,11 +83,11 @@ if __name__ == "__main__":
 
     if args.algorithm == 'ils':
         ils = ILS(problem, verbose = args.verbose, local_search=ls, ls_max_evals=ls_max_evals, mut_prop=mut_prop)
-        s = ils.generateSolution(exe_time, num_iterations, num_evaluations, etype, csv = args.csv)
+        s = ils.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'sa':
         sa = SA(problem, verbose = args.verbose, final_temp = final_temp)
-        s = sa.generateSolution(exe_time, num_iterations, num_evaluations, etype, csv = args.csv)
+        s = sa.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'grasp':
         if greedy == 'ind':
@@ -94,9 +95,9 @@ if __name__ == "__main__":
         else:
             g = RandomizedPairsGreedy(problem, greedy_alpha)
         grasp = GRASP(problem, g, args.verbose, ls, ls_max_evals)
-        s = grasp.generateSolution(exe_time, num_iterations, num_evaluations, etype, csv = args.csv)
+        s = grasp.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'greedy':
         g = GreedyQAP(problem)
         grasp = GRASP(problem, g, args.verbose, ls, ls_max_evals)
-        grasp.generateSolution(0, 0, 0, etype, csv = args.csv).fullPrint()
+        grasp.generateSolution(0, 0, 0, etype, csvf = args.csv_folder, csvs = args.csv_suffix).fullPrint()
