@@ -58,7 +58,7 @@ print("Elapsed time in seconds:", timer.getTime())
 
 #----------------------------------- ILS-ES -----------------------------------#
 
-print("Executing ILS...")
+print("Executing ILS-ES...")
 timer = Timer()
 timer.start()
 suffix = sol_dir_suffix.replace("/", "_")
