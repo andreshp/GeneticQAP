@@ -39,7 +39,7 @@ for t in TF:
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python ./code/main_ma.py", instance, "sa", execution_type,
                             "-ft", str(t)])
-    execute(parameters, sol_dir, suffix, num_executions)
+    execute(parameters, sol_dir, suffix, num_executions, server)
 print("Elapsed time in seconds:", timer.getTime())
 
 #------------------------------------ ILS -----------------------------------#
@@ -53,7 +53,7 @@ for mp in MP:
     suffix = sol_dir_suffix.replace("/", "_")
     parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
                             "-lsme 50000"])
-    execute(parameters, sol_dir, suffix, num_executions)
+    execute(parameters, sol_dir, suffix, num_executions, server)
 print("Elapsed time in seconds:", timer.getTime())
 
 #----------------------------------- ILS-ES -----------------------------------#
@@ -65,7 +65,7 @@ suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, "ILS-SA/")
 parameters = " ".join(["python ./code/main_ma.py", instance, "ils", execution_type_2,
                         "-ls sa -lsme 50000"])
-execute(parameters, sol_dir, suffix, num_executions)
+execute(parameters, sol_dir, suffix, num_executions, server)
 print("Elapsed time in seconds:", timer.getTime())
 
 #------------------------------------ GRASP -----------------------------------#
@@ -80,7 +80,7 @@ for g in greedy:
     sol_dir = os.path.join(sols_dir, "GRASP/"+g+"/2optb")
     parameters = " ".join(["python ./code/main_ma.py", instance, "grasp", execution_type_2,
                            "-gr", g, "-ls 2optb -gra 0.3 -lsme 50000"])
-    execute(parameters, sol_dir, suffix, num_executions)
+    execute(parameters, sol_dir, suffix, num_executions, server)
 print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing Randomized Greedy...")
@@ -91,5 +91,5 @@ for g in greedy:
     sol_dir = os.path.join(sols_dir, "GRASP/"+g+"/none")
     parameters = " ".join(["python ./code/main_ma.py", instance, "grasp i 0",
                             "-gr", g, "-ls none -gra 0.3"])
-    execute(parameters, sol_dir, suffix, num_executions)
+    execute(parameters, sol_dir, suffix, num_executions, server)
 print("Elapsed time in seconds:", timer.getTime())
