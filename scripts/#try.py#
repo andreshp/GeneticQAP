@@ -28,6 +28,7 @@ def execute(parameters, sol_dir, num_executions):
         os.makedirs(sol_dir, exist_ok = True)
         if server:
             os.system("bash ./scripts/execute_instance.sh " + command)
+            os.rename("results.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
         else:
             os.system(command + " > " + sol)
         os.rename("objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    

@@ -35,7 +35,7 @@ def execute(parameters, sol_dir, num_executions):
             os.system("bash ./scripts/execute_instance.sh " + command)
         else:
             os.system(command + " > " + sol)
-        #os.rename("objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
+        os.rename("objective_value.csv", sol_dir + "/objective_value_"+str(i)+".csv")    
 
 #------------------------------------ SA ------------------------------------#
 
