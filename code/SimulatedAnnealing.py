@@ -32,11 +32,11 @@ class SA(Heuristic):
 
     def saveExecutionInformation(self, max_executing_time, total_iterations, total_num_evaluations, etype):
         if etype == Execution.fixed_evaluations:
-            self.total_iterations = total_num_evaluations // (self.problem.N*10)
+            self.total_iterations = total_num_evaluations // (self.neighbours_per_it)
         elif etype == Execution.iterations:
             self.total_iterations = total_iterations
         elif etype == Execution.fixed_time:
-            self.total_iterations = max_executing_time*(300000) // (self.problem.N*10)
+            self.total_iterations = max_executing_time*(300000) // (self.neighbours_per_it)
         else:
             self.total_iterations = 1000000
         if self.total_iterations == 0:
@@ -84,7 +84,7 @@ class SA(Heuristic):
         sa = SA(solution.problem, solution = solution)
         sa.saveExecutionInformation(0,0,max_evals,Execution.fixed_evaluations)
         sa.initialComputations1()
-        for i in range(0, int(sa.total_iterations)):
+        while max_evals > sa.num_evaluations:
             sa.iteration()
             #print("It:", i, "Temp:", sa.temp, "evals:", sa.num_evaluations, sa.best_sol)
             

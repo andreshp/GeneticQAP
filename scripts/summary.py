@@ -102,12 +102,13 @@ def summarizeInstance(directory, alg_path, instance, algorithms, opt):
         df = read_csv(os.path.join(path,"results.csv"))
         alg = "-".join(alg_path.split('/'))
         mean_values = df.mean()
+        best_ovalue = df['Objective value'].min()
         if not alg in algorithms:
             algorithms[alg] = DataFrame(columns=('Instance', 'Time', 'Evaluations', 'Iterations',
-                                                 'Objective value', 'Distance to optimum'))
+                                                 'Objective value', 'Distance to optimum (Avg)', 'Distance to optimum (Best)'))
         mean_ovalue = mean_values[-1]
         algorithms[alg].loc[len(algorithms[alg])] = [instance, mean_values[0], mean_values[1],
-                                                     mean_values[2], mean_ovalue, 100*float(mean_ovalue - opt)/opt]
+                                                     mean_values[2], mean_ovalue, 100*float(mean_ovalue - opt)/opt, 100*float(best_ovalue - opt)/opt]
 
     # Call to each directory recursively.
     for d in os.listdir(path):
@@ -116,13 +117,13 @@ def summarizeInstance(directory, alg_path, instance, algorithms, opt):
             summarizeInstance(directory, new_path, instance, algorithms, opt)        
 
 def globalSummary(directory):
-    summary = DataFrame(columns=('Algorithm', 'Time','Evaluations', 'Iterations', 'Distance to optimum'))
+    summary = DataFrame(columns=('Algorithm', 'Time','Evaluations', 'Iterations', 'Distance to optimum (Avg)','Distance to optimum (Best)' ))
     for f in files(directory, "*.csv"):
         alg_name = f.replace('.csv', '').replace(directory,'')
         if alg_name != "summary":
             df = read_csv(f)
             mean_values = df[1:].mean()
-            summary.loc[len(summary)] = [alg_name, mean_values[0], mean_values[1], mean_values[2], mean_values[-1]]
+            summary.loc[len(summary)] = [alg_name, mean_values[0], mean_values[1], mean_values[2], mean_values[-2], mean_values[-1]]
     summary = sort_df(summary,0,key=lambda x: x)
     summary.to_csv(os.path.join(directory, "summary.csv"), index=False, encoding='utf-8')
             
@@ -131,6 +132,6 @@ if len(sys.argv) <= 1:
     exit()
 
 # Executes the program
-#firstCSV(sys.argv[1])
-#algorithmsSummary(sys.argv[1])
+firstCSV(sys.argv[1])
+algorithmsSummary(sys.argv[1])
 globalSummary(sys.argv[1])

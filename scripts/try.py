@@ -14,21 +14,20 @@ if len(sys.argv) < 2:
 
 instance = sys.argv[1]
 ninstance = instance.replace('.dat', '').split('/')[-1]
-execution_type = "e 50000"
-execution_type_2 = "i 24"
+execution_type = "i 24"
 sols_dir = "./results/p2/" + ninstance 
-num_executions = 1
+num_executions = 30
 server = len(sys.argv) > 2
 code = "./code/main_ma.py"
 
-print("Executing simulating annealing...")
+print("Executing ILS-ES...")
 timer = Timer()
 timer.start()
-TF = [0.001, -0.001]
-t=TF[1]
-sol_dir_suffix = "SA/t="+str(t)
+sol_dir_suffix = "ILS-SA"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir,sol_dir_suffix)
-parameters = " ".join(["python ./code/main_ma.py", instance, "sa", execution_type,
-                       "-ft", str(t)])
+parameters = " ".join(["python", code, instance, "ils", execution_type,
+                        "-ls sa -lsme 50000"])
 execute(parameters, sol_dir, suffix, num_executions, server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
