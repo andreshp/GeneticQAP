@@ -1,7 +1,7 @@
-Time (s): 0.6169233322143555
-Number of evaluations: 1076738
+Time (s): 0.7088088989257812
+Number of evaluations: 1254033
 Number of iterations: 24
-The solution has objective value 91520 .
+The solution has objective value 91490 .
 The permutation is:
-[27  9 22 12  6 20  8 19 28 13  7 23 26 24 18 11 21 14 10  1  3 16  0  5 15
-  4  2 17 25 29]
+[27  9 18 13 29 28 11 21 22 12  6 20  8  7 19 26 24 23 17 25 14 10  2  5 16
+  4  3 15  0  1]

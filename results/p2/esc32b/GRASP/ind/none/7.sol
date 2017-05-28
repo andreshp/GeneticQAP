@@ -1,4 +1,4 @@
-Time (s): 0.0019156932830810547
+Time (s): 0.0017855167388916016
 Number of evaluations: 1
 Number of iterations: 0
 The solution has objective value 308 .

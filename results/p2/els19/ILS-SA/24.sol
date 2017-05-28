@@ -1,5 +1,5 @@
-Time (s): 0.4886624813079834
-Number of evaluations: 1075724
+Time (s): 0.564913272857666
+Number of evaluations: 1252372
 Number of iterations: 24
 The solution has objective value 17937024 .
 The permutation is:
