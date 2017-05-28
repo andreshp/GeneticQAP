@@ -23,11 +23,11 @@ code = "./code/main_ma.py"
 print("Executing ILS-ES...")
 timer = Timer()
 timer.start()
-sol_dir_suffix = "ILS-SA-0.001"
+sol_dir_suffix = "ILS-SA-fixed"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir,sol_dir_suffix)
 parameters = " ".join(["python", code, instance, "ils", execution_type,
-                        "-ls sa -lsme 50000 -ft 0.001"])
+                        "-ls sa -lsme 50000"])
 execute(parameters, sol_dir, suffix, num_executions, server)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())

@@ -82,6 +82,7 @@ class SA(Heuristic):
         """ Applies simulated annealing as a local search procedure."""
 
         sa = SA(solution.problem, solution = solution)
+        sa.final_temp = 0.001 # Trying this value
         sa.saveExecutionInformation(0,0,max_evals,Execution.fixed_evaluations)
         sa.initialComputations1()
         while max_evals > sa.num_evaluations:
