@@ -23,7 +23,7 @@ def invertPermutation(p):
 class Greedy(Heuristic):
 
     def __init__(self, problem):
-        self.problem = problem
+        super().__init__(problem) 
     
     def greedySelectionFunction(self, partial_sol, elem, pos):
         raise NotImplementedError

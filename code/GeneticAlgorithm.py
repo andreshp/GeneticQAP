@@ -15,11 +15,13 @@ from sortedcontainers import SortedListWithKey
 from Heuristic import Heuristic
 from Solution import *
 from LocalSearch import *
+from Greedy import *
+from Aux import argsort
 
 TypeLSGA = Enum('TypeLSGA', 'None All Random Best')
 
 class HybridizationLSGA():
-    """ Class with the information about the hybridization between a gentic algorithm and a local search."""
+    """ Class with the information about the hybridization between a genetic algorithm and a local search."""
 
     def __init__(self, local_search = LSType['2optb'], itpls = 1, lsga = TypeLSGA['None'],
                  proportion = 0, max_evals = -1):
@@ -55,13 +57,13 @@ class GeneticAlgorithm(Heuristic):
     these procedures are introduced to the population under some predefined criteria.
     """
 
-    def __init__(self, problem, verbose = False, pop_size = -1, crossover = CrossType['Position'],
+    def __init__(self, problem, verbose = False, print_aux_info = False, pop_size = -1, crossover = CrossType['Position'],
                  hybrid_ls = HybridizationLSGA()):
         """ Initializes the genetic algorithm. First, the heuristic is initialized as usual.
         Afterwards the population size, the crossover type and the local search used are saved as attributes.
         """
 
-        super().__init__(problem, verbose)
+        super().__init__(problem, verbose, print_aux_info)
         # Population size. By default it is -1, value that should be changed in the
         # subclasses init method.
         self.pop_size = pop_size
@@ -83,6 +85,7 @@ class GeneticAlgorithm(Heuristic):
         self.using_ovalues = True
         # Name of the auxiliar info saved to csv.
         self.aux_info_name = "Diversity"
+        
         
     def initializePopulation(self, rand = True, h = None, sorted_list = False):
         """ Initializes the genetic algorithm population as random 
@@ -122,6 +125,12 @@ class GeneticAlgorithm(Heuristic):
     def cross(self, p1, p2):
         self.num_evaluations+=2
         return p1.cross(p2, self.crossover)
+
+    def initialComputations1(self):
+        """Initial computations of the genetic algorithm. It must be extended in each specific algorithm."""
+        # Initializes the number of local searches applied in the computation.
+        self.num_ls = 0
+
     
     def iteration(self):
         """ An iteration of a genetic algorithm consists in evolving the population. 
@@ -134,7 +143,9 @@ class GeneticAlgorithm(Heuristic):
         # since the last time that it was applied then it is applied again.
         if self.hls.lsga != TypeLSGA['None'] and self.current_it % self.hls.itpls == self.hls.itpls-1:
             for i in range(0, self.hls.num_improved):
-                if not self.applyLocalSearch(self.hls.lsga == TypeLSGA['Random']):
+                if self.applyLocalSearch(self.hls.lsga == TypeLSGA['Random']):
+                    self.num_ls += 1
+                else:
                     break
 
         self.updateBestSol()
@@ -165,12 +176,13 @@ class GGA(GeneticAlgorithm):
     generation substitues the current population.
     """
 
-    def __init__(self, problem, verbose = False, pop_size = -1, crossover = CrossType['Position'],
-                 hybrid_ls = HybridizationLSGA(), mut_prob = 0.001, cross_prob = 0.7):
+    def __init__(self, problem, verbose = False, print_aux_info = False, pop_size = -1,
+                 crossover = CrossType['Position'], hybrid_ls = HybridizationLSGA(),
+                 mut_prob = 0.001, cross_prob = 0.7):
         """ Initializes the GGA. 
         The default population size is 50.
         """
-        super().__init__(problem, verbose, pop_size, crossover, hybrid_ls)
+        super().__init__(problem, verbose, print_aux_info, pop_size, crossover, hybrid_ls)
         # Chooses the population size. It is always an ever number (by default 50).
         self.pop_size = pop_size + pop_size % 2 if pop_size > 0 else 50
         # Mutation probability
@@ -186,6 +198,7 @@ class GGA(GeneticAlgorithm):
 
     def initialComputations1(self):
         """ Initializes the population with random solutions."""
+        super().initialComputations1()
         self.initializePopulation()
         
     def evolve(self):
@@ -310,12 +323,12 @@ class SGA(GeneticAlgorithm):
     the worst chromosomes if they are better than them.
     """
 
-    def __init__(self, problem, verbose = False, pop_size = -1, crossover = CrossType['Position'],
+    def __init__(self, problem, verbose = False, print_aux_info = False, pop_size = -1, crossover = CrossType['Position'],
                  hybrid_ls = HybridizationLSGA(), mut_prob = 0.001):
         """ Initializes the GGA. 
         The default population size is 50.
         """
-        super().__init__(problem, verbose, pop_size, crossover, hybrid_ls)
+        super().__init__(problem, verbose, print_aux_info, pop_size, crossover, hybrid_ls)
         # Chooses the population size. It is always an ever number (by default 50).
         self.pop_size = pop_size + pop_size % 2 if pop_size > 0 else 50
         # Mutation probability
@@ -327,6 +340,7 @@ class SGA(GeneticAlgorithm):
         
     def initialComputations1(self):
         """ Initializes the population with random solutions."""
+        super().initialComputations1()
         self.initializePopulation(True, None, True)
 
     def evolve(self):
@@ -390,7 +404,96 @@ class SGA(GeneticAlgorithm):
 
     def diversity(self):
         return numbaDiversity(np.array(list(map(lambda x: x[0].perm, self.population))))
+
+class GADEGD(GeneticAlgorithm):
+    """ Implementation of GADEGD (Genetic Algorithm with Diversity Equilibrium based on Greedy Divirsification).
+    GADEGD first build a population using random solutions.
+    The evolution procedure consist in building a new generation, that is, a new population
+    whose chromosomes are obtained from the current population by randomly sorting the population and crossing 
+    the adjacent pairs (1 child per pair). The new chromosomes compete with their main parent, substituting it 
+    in the population if it is better. Afterwards, the greedy divirsification prodecure is applied.
+    """
+
+    def __init__(self, problem, verbose = False, print_aux_info = False, pop_size = -1, crossover = CrossType['Position'],
+                 hybrid_ls = HybridizationLSGA(), greedy = None):
+        """ Initializes the GGA. 
+        The default population size is 64.
+        """
+        # Chooses the population size. It is always an even number (by default 50).
+        self.pop_size = pop_size + pop_size % 2 if pop_size > 0 else 64
+        # Greedy algorithm used
+        self.greedy =  greedy  if greedy != None else RandomizedIndividualGreedy(problem, 0.05)
         
+        super().__init__(problem, verbose, print_aux_info, self.pop_size, crossover, hybrid_ls)
+
+    def initialComputations1(self):
+        """ Initializes the population with random solutions."""
+        super().initialComputations1()
+        self.initializePopulation()
+        self.num_greedy = 0
+        
+    def evolve(self):
+        """
+        The population evolves using a random adjacent selection and a competition between parents and children.
+        """
+
+        order = np.arange(self.pop_size)
+        np.random.shuffle(order)
+
+        # Computes the children.
+        children = [None] * self.pop_size
+        for i in range(0, self.pop_size):
+            children[i] = self.population[order[i]].cross(self.population[order[(i+1) % self.pop_size]], self.crossover, False)
+
+        for i in range(0, self.pop_size):
+            # Adds the new child to the population if it is better than its main parent.
+            if children[i] >= self.population[order[i]]:
+                # and children[i] != self.population[order[i]] and
+                # children[i] != self.population[order[(i+1) % self.pop_size]]:
+                self.population[order[i]] = children[i]
+                self.improved[order[i]] = False
+
+        self.num_evaluations += self.pop_size
+        self.greedyDiversification()
+
+    def applyLocalSearch(self, rand = False):
+
+        # If it has already been improved return false.
+        if np.all(self.improved):
+            return False
+
+        # Choose the solution to improve.
+        if rand:
+            best_ni =  np.random.choice(np.where(self.improved == False)[0])
+        else:
+            self.ovalues = np.fromiter(map(lambda x: x.getObjectiveValue(), self.population), np.int64)
+            best_ni = np.argmax((np.ones(self.pop_size)- self.improved) / self.ovalues)
+
+        self.num_evaluations+= LocalSearch.localSearch(self.population[best_ni],
+                                                       self.hls.local_search, self.hls.max_evals)
+        self.improved[best_ni] = True
+
+        return True
+
+    def greedyDiversification(self):
+        order = argsort(self.population)
+        self.improved = self.improved[order]
+        self.population = [self.population[i] for i in order]        
+        for i in range(0, self.pop_size-1):
+            if self.population[i] == self.population[i+1]:
+                self.population[i] = self.greedy.buildSolution()
+                self.improved[i] = False
+                self.num_greedy += 1
+                self.num_evaluations += 1
+
+    def updateBestSol(self):
+        self.best_sol_arg = self.population.index(max(self.population))
+        self.best_sol = self.population[self.best_sol_arg]
+        
+    def diversity(self):
+        return numbaDiversity(np.array(list(map(lambda x: x.perm, self.population))))
+
+    
 @jit(int64(int64[:]), cache=True, nopython=True)
 def numbaTournamentSelection(ovalues):
     # Selects two random solutions of the population.

@@ -20,7 +20,7 @@ class Heuristic:
     heuristics implemented as subclase
     """    
 
-    def __init__(self, problem, verbose = False):
+    def __init__(self, problem, verbose = False, print_aux_info = False):
         # Problem which the heuristic solves
         self.problem = problem
         # Time between two consecutive points in an image.
@@ -33,6 +33,13 @@ class Heuristic:
         self.current_it = 0
         # Name of the auxiliar info saved to csv.
         self.aux_info_name = "not defined"
+        
+        # Boolean which determines whether auxiliar information about the execution is printed or not.
+        self.print_aux_info = print_aux_info
+        # Number of local search applications in the computations. It is only updated by those heuristics which use the local search.
+        self.num_ls = 0
+        # Number of greedy solutions generated in the heuristic. It is only updated in those heuristics which use greedy solution underneath.
+        self.num_greedy = 0
 
     def initialComputations1(self):
         raise NotImplementedError
@@ -126,7 +133,8 @@ class Heuristic:
                 self.iteration()
                 self.current_it+=1
                 if self.verbose:
-                    print(" - Iteration " + str(self.current_it) + ". Number of evaluations " + str(self.num_evaluations) + ".", self.best_sol)
+                    print(" - Iteration " + str(self.current_it) + ". Number of evaluations " +
+                          str(self.num_evaluations) + ".", self.best_sol)
 
                 # Get the points for the images.
                 if self.timer.getTime() >= self.next_point_to_image_time:
@@ -146,7 +154,10 @@ class Heuristic:
         print("Time (s):", self.timer.getTime())
         print("Number of evaluations:", self.num_evaluations)
         print("Number of iterations:", self.current_it)
-        
+        if self.print_aux_info:
+            print("Number of local search applications:", self.num_ls)
+            print("Number of greedy solutions:", self.num_greedy)
+
         if csvf != None:
             self.saveCSV(csvf, csvs)
 
@@ -154,4 +165,4 @@ class Heuristic:
 
     def generateSolutions(self, num_sols, executing_time = 0):
         return [self.generateSolution(executing_time) for i in range(0, num_sols)]
-
+  

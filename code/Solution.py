@@ -7,13 +7,14 @@
 import random
 from numba import jit, int64, float64, void, boolean          # import the decorator
 from enum import Enum
+import copy
 
 from AbstractSolution import *
 from QAP import *
 from Aux import *
 
 """Enum with all the crossovers operators types."""
-CrossType = Enum('CrossType', 'Position PMX OX')
+CrossType = Enum('CrossType', 'Position PMX OX PR')
             
 class Solution(AbstractSolution):
 
@@ -54,21 +55,44 @@ class Solution(AbstractSolution):
         self.ovalue = numbaComputeObjectiveValueQAP(self.perm, self.problem.weights, self.problem.distances)
         return self.ovalue
 
-    def cross(self, p, cross_type):
-        """ Crosses the solutions self and p to obtain two new solutions. 
+    def cross(self, p, cross_type, twosols = True):
+        """ Crosses the solutions self and p to obtain one or two new solutions. 
         We say that the new solutions are children of self and p. 
         The crossover operator is chosen by cross_type.
         """
-        s1 = -np.ones(self.problem.N, dtype = np.int64)
-        s2 = -np.ones(self.problem.N, dtype = np.int64)
-        if cross_type == CrossType['Position']:
-            crossPosition(s1, s2, self.perm, p.perm)
-        elif cross_type == CrossType['PMX']:
-            crossPMX(s1, s2, self.perm, p.perm)
+        if not twosols:
+            s = -np.ones(self.problem.N, dtype = np.int64)
+            if cross_type == CrossType['PR']:
+                ovalue = crossPathRelinking(s, self.perm, self.getObjectiveValue(), p.perm,
+                                            p.getObjectiveValue(), self.problem.weights, self.problem.distances)
+                sol = Solution(self.problem, False, s)
+                sol.ovalue = ovalue
+                return sol
+            else:
+                crossPositionOne(s, self.perm, p.perm)
+                return Solution(self.problem, False, s)
         else:
-            crossOX(s1, s2, self.perm, p.perm)
-
-        return Solution(self.problem, False, s1), Solution(self.problem, False, s2)
+            s1 = -np.ones(self.problem.N, dtype = np.int64)
+            s2 = -np.ones(self.problem.N, dtype = np.int64)
+            if cross_type == CrossType['Position']:
+                crossPosition(s1, s2, self.perm, p.perm)
+            elif cross_type == CrossType['PMX']:
+                crossPMX(s1, s2, self.perm, p.perm)
+            elif cross_type == CrossType['PR']:
+                ovalue1 = crossPathRelinking(s1, self.perm, self.getObjectiveValue(), p.perm,
+                                             p.getObjectiveValue(), self.problem.weights, self.problem.distances)
+                ovalue2 = crossPathRelinking(s2, p.perm, p.getObjectiveValue(), self.perm,
+                                             self.getObjectiveValue(), self.problem.weights,
+                                             self.problem.distances)
+                sol1 = Solution(self.problem, False, s1)
+                sol1.ovalue = ovalue1
+                sol2 = Solution(self.problem, False, s2)
+                sol2.ovalue = ovalue2
+                return sol1, sol2
+            else:
+                crossOX(s1, s2, self.perm, p.perm)
+                
+            return Solution(self.problem, False, s1), Solution(self.problem, False, s2)
         
     def mutate(self, num_mut = 1):
         """ Mutates the solution. The mutation consist of applying a random transposition."""
@@ -86,7 +110,6 @@ class Solution(AbstractSolution):
         t = size if size > 0 else self.problem.N // 4
         shuffleRandomSublist(self.perm, t)
         self.ovalue = -1
-
  
     def distance(self, s2):
         return numbaDistance(self.perm, s2.perm)
@@ -260,6 +283,28 @@ def crossPosition(s1, s2, p1, p2):
             s2[i] = p1[not_equal[-j-1]]
             j += 1
 
+@jit(void(int64[:], int64[:], int64[:]), cache=True, nopython=True)
+def crossPositionOne(s, p1, p2):
+    """ Position crossover implemented with numba.
+    Given two permutations p1 and p2, the son permutation
+    is defined as s[i]=p1[i] when p1[i] = p2[i].
+    The rest of the permutation is randomly defined.
+    """
+    count = 0
+    not_equal = []
+    for i in range(0, len(p1)):
+        if p1[i] == p2[i]:
+            s[i] = p1[i]
+        else:
+            not_equal.append(i)
+    not_equal = np.array(not_equal)
+    random.shuffle(not_equal)
+    j = 0
+    for i in range(0, len(p1)):
+        if s[i] < 0:
+            s[i] = p1[not_equal[j]]
+            j += 1
+            
 @jit(void(int64[:], int64[:], int64[:], int64[:]), cache=True, nopython=True)
 def crossOX(s1, s2, p1, p2):
     """ OX crossover (order crossover) implemented with numba.
@@ -313,3 +358,47 @@ def crossOX(s1, s2, p1, p2):
         if not s2_used[p1[k]]:
             s2[t2] = p1[k]
             t2 = (t2+1)%len(p1)
+
+@jit(int64(int64[:], int64[:], int64, int64[:], int64, int64[:,:], int64[:,:]), cache=True, nopython=True)
+def crossPathRelinking(best_sol, p1, cp1, p2, cp2, weights, distances):
+    """ Path Relinking crossover implemented with numba.
+    """
+    s = np.zeros(len(p1), dtype = np.int64)
+    s[:] = p1[:]
+    sinverse = np.argsort(s)
+    current_cost = cp1
+    best_cost = -1
+    dist = numbaDistance(p1, p2)
+    # If the solutions differ in a transposition, then the best solution is returned.
+    if dist <= 2:
+        if cp1 >= cp2:
+            best_sol[:] = p1[:]
+            return cp1
+        else:
+            best_sol[:] = p2[:]
+            return cp2            
+
+    # Selects a random order for going from p1 to p2.
+    order = np.arange(len(p1))
+    np.random.shuffle(order)
+    for j in range(0, len(p1)-2):
+        i = order[j]
+        if s[i] != p2[i]:
+            # Computes the new cost
+            current_cost += applyTranspositionQAP(s, i, sinverse[p2[i]], weights, distances)
+            # Computes the new distance
+            dist -= 2 if s[i] == p2[sinverse[p2[i]]] else 1
+            # Makes the exhange
+            s[sinverse[p2[i]]] = s[i]
+            sinverse[s[i]] = sinverse[p2[i]]
+            s[i] = p2[i]
+            sinverse[p2[i]] = i
+            
+            # Updates the best solution found
+            if dist > 0:
+                if (best_cost < 0 or best_cost > current_cost):
+                    best_sol[:] = s[:]
+                    best_cost = current_cost
+            else:
+                break
+    return best_cost

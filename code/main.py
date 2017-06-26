@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Evolutionary computation on QAP.')
     parser.add_argument('instance', metavar='-i', type=str, help='Instance to execute.')
-    parser.add_argument('algorithm', metavar='-a', type=str, help='Algorithm to use. Options: gga, sga, greedy1, greedy2')
+    parser.add_argument('algorithm', metavar='-a', type=str, help='Algorithm to use. Options: gga, sga, gadegd')
     parser.add_argument('execution', metavar='-e', type=str, help='Type of execution. Options: t, i, e, c')
     parser.add_argument('exe_parameter', metavar='-ep', type=int, help='Execution parameter.')
     parser.add_argument('-ps', '--population_size', type=int, help='Population size.')
@@ -29,7 +29,9 @@ if __name__ == "__main__":
     parser.add_argument('-pm', '--prob_mut', type=float, help='Mutation probability. It is 0.1 by default.')
     parser.add_argument('-c', '--cross', type=str, help='Crossover used in GAs. Options: Position, PMX, OX (Default: Position)')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose execution.')
-    parser.add_argument('-csv', '--csv', action='store_true', help='Saves some csv with the algorithm data for making plots.')
+    parser.add_argument('-aux', '--aux_info', action='store_true', help='Print the auxiliar information at the end of the execution.')
+    parser.add_argument('-csvf', '--csv_folder', type=str, help='Directory where saving some csv with the algorithm data for making plots. Default: None (no csv is saved).')
+    parser.add_argument('-csvs', '--csv_suffix', type=str, help='Suffix appended to the name of the csv files. Default: None (no suffix). Example: csv_folder = /tmp, csv_suffix = ils. The csv is saved as "/tmp/objective_value_ils.csv".')
     parser.add_argument('-ls', '--local_search', type=str, help='Local search used. Options: 2opt, 2optb. (Default: 2opt)')
     parser.add_argument('-itpls', '--itpls', type=int, help='Number of iterations per local search application.')
     parser.add_argument('-lsga', '--lsga', type=str, help='Hybridization of GAs and local search. Options: None, All, Random, Best. (Default: None)')
@@ -88,19 +90,18 @@ if __name__ == "__main__":
     hls = HybridizationLSGA(ls, itpls, lsga, ls_proportion, ls_max_evals)
     
     if args.algorithm == 'gga':
-        gga = GGA(problem, args.verbose, pop_size=pop_size, crossover=crossover, hybrid_ls = hls, cross_prob=prob_cross, mut_prob=prob_mut)
-        s = gga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csv = args.csv)
+        gga = GGA(problem, args.verbose, args.aux_info, pop_size=pop_size, crossover=crossover,
+                  hybrid_ls = hls, cross_prob=prob_cross, mut_prob=prob_mut)
+        s = gga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'sga':
-        sga = SGA(problem, args.verbose, pop_size=pop_size, crossover=crossover, hybrid_ls = hls,
-                  mut_prob = prob_mut)
-        s = sga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csv = args.csv)
+        sga = SGA(problem, args.verbose, args.aux_info, pop_size=pop_size, crossover=crossover,
+                  hybrid_ls = hls, mut_prob = prob_mut)
+        s = sga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
-    elif args.algorithm == 'greedy1':
-        g = GreedyQAP(problem)
-        grasp = GRASP(problem, g, args.verbose, ls, ls_max_evals)
-        grasp.generateSolution(0, 0, 0, etype, csv = args.csv).fullPrint()
-    elif args.algorithm == 'greedy2':
-        g = ProperGreedy(problem)
-        grasp = GRASP(problem, g, args.verbose, local_search = ls, ls_max_evals=ls_max_evals)
-        grasp.generateSolution(0, 0, 0, etype, csv = args.csv).fullPrint()
+    elif args.algorithm == 'gadegd':
+        gadegd = GADEGD(problem, args.verbose, args.aux_info, pop_size=pop_size,
+                        crossover=crossover, hybrid_ls = hls)
+        s = gadegd.generateSolution(exe_time, num_iterations, num_evaluations, etype,
+                                    csvf = args.csv_folder, csvs = args.csv_suffix)
+        s.fullPrint()
