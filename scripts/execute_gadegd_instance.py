@@ -36,7 +36,21 @@ for size in ps:
     sol_dir_suffix = "GADEGD/original/ps="+str(size)
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR"])
+    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux"])
+    execute(parameters, sol_dir, suffix, num_executions, server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
+print("Executing MADEGD with different population sizes...")
+ps = [8, 16, 32, 64, 128]
+timer = Timer()
+timer.start()
+for size in ps:
+    sol_dir_suffix = "MADEGD/original/ps="+str(size)
+    suffix = sol_dir_suffix.replace("/", "_")
+    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
+    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux",
+                           "-lsga Best -ls 2optb -itpls 1"])
     execute(parameters, sol_dir, suffix, num_executions, server)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
