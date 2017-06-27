@@ -12,8 +12,9 @@ import copy
 
 class ILS(Heuristic):
 
-    def __init__(self, problem, verbose = False, local_search = LSType['2optb'], ls_max_evals = -1, mut_prop = -1):
-        super().__init__(problem, verbose)
+    def __init__(self, problem, verbose = False, print_aux_info = False,
+                 local_search = LSType['2optb'], ls_max_evals = -1, mut_prop = -1):
+        super().__init__(problem, verbose, print_aux_info)
         self.local_search = local_search
         self.ls_max_evals = ls_max_evals
         self.mut_size = int(mut_prop * self.problem.N)

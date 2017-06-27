@@ -23,8 +23,9 @@ if __name__ == "__main__":
     parser.add_argument('instance', metavar='-i', type=str, help='Instance to execute.')
     parser.add_argument('algorithm', metavar='-a', type=str, help='Algorithm to use. Options: ils, grasp, greedy1, greedy2')
     parser.add_argument('execution', metavar='-e', type=str, help='Type of execution. Options: t, i, e, c')
-    parser.add_argument('exe_parameter', metavar='-ep', type=int, help='Execution parameter.')
+    parser.add_argument('exe_parameter', metavar='-ep', type=float, help='Execution parameter.')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose execution.')
+    parser.add_argument('-aux', '--aux_info', action='store_true', help='Print the auxiliar information at the end of the execution.')
     parser.add_argument('-csvf', '--csv_folder', type=str, help='Directory where saving some csv with the algorithm data for making plots. Default: None (no csv is saved).')
     parser.add_argument('-csvs', '--csv_suffix', type=str, help='Suffix appended to the name of the csv files. Default: None (no suffix). Example: csv_folder = /tmp, csv_suffix = ils. The csv is saved as "/tmp/objective_value_ils.csv".')
     parser.add_argument('-ls', '--local_search', type=str, help='Local search used. Options: 2opt, 2optb, sa, none. (Default: 2opt)')
@@ -61,9 +62,9 @@ if __name__ == "__main__":
     exe_time = 0
     num_evaluations = 0
     if etype == Execution.iterations:
-        num_iterations = args.exe_parameter
+        num_iterations = round(args.exe_parameter)
     elif etype == Execution.fixed_evaluations:
-        num_evaluations = args.exe_parameter
+        num_evaluations = round(args.exe_parameter)
     else:
         exe_time = args.exe_parameter
 
@@ -82,20 +83,23 @@ if __name__ == "__main__":
     final_temp = -0.001 if args.final_temp == None else args.final_temp
 
     if args.algorithm == 'ils':
-        ils = ILS(problem, verbose = args.verbose, local_search=ls, ls_max_evals=ls_max_evals, mut_prop=mut_prop)
-        s = ils.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
+        ils = ILS(problem, verbose = args.verbose, print_aux_info = args.aux_info, local_search=ls, ls_max_evals=ls_max_evals, mut_prop=mut_prop)
+        s = ils.generateSolution(exe_time, num_iterations, num_evaluations, etype,
+                                 csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'sa':
-        sa = SA(problem, verbose = args.verbose, final_temp = final_temp)
-        s = sa.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
+        sa = SA(problem, verbose = args.verbose, print_aux_info = args.aux_info, final_temp = final_temp)
+        s = sa.generateSolution(exe_time, num_iterations, num_evaluations, etype,
+                                csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'grasp':
         if greedy == 'ind':
             g = RandomizedIndividualGreedy(problem, greedy_alpha)
         else:
             g = RandomizedPairsGreedy(problem, greedy_alpha)
-        grasp = GRASP(problem, g, args.verbose, ls, ls_max_evals)
-        s = grasp.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
+        grasp = GRASP(problem, g, args.verbose, args.aux_info, ls, ls_max_evals)
+        s = grasp.generateSolution(exe_time, num_iterations, num_evaluations, etype,
+                                   csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'greedy':
         g = GreedyQAP(problem)

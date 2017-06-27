@@ -24,7 +24,7 @@ class AbstractSolution:
     """
 
     def __init__(self, problem, random = True, structure = None):
-        """ Initializes an abstract solution from the problem. 
+        """ Initializes an abstract solution fromthe problem. 
         The solution general data is initialized by default.
         Then it calls the initializeData method.
         """

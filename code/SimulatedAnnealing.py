@@ -11,8 +11,8 @@ import math
 
 class SA(Heuristic):
 
-    def __init__(self, problem, verbose = False, solution = None, final_temp = -0.001):
-        super().__init__(problem, verbose)
+    def __init__(self, problem, verbose = False, print_aux_info = False, solution = None, final_temp = -0.001):
+        super().__init__(problem, verbose, print_aux_info)
         # Maximum number of changes accepted per iteration.
         self.changes_per_it = self.problem.N
         # Maximum number of neighbours visited per iteration

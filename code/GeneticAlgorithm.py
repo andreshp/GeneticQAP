@@ -123,8 +123,9 @@ class GeneticAlgorithm(Heuristic):
             return ran1 if self.population[ran1][0] >= self.population[ran2][0] else ran2 
 
     def cross(self, p1, p2):
-        self.num_evaluations+=2
-        return p1.cross(p2, self.crossover)
+        s1, s2, evals = p1.cross(p2, self.crossover)
+        self.num_evaluations+=evals
+        return s1, s2
 
     def initialComputations1(self):
         """Initial computations of the genetic algorithm. It must be extended in each specific algorithm."""
@@ -431,6 +432,7 @@ class GADEGD(GeneticAlgorithm):
         super().initialComputations1()
         self.initializePopulation()
         self.num_greedy = 0
+        self.num_reemplacements = 0
         
     def evolve(self):
         """
@@ -443,17 +445,18 @@ class GADEGD(GeneticAlgorithm):
         # Computes the children.
         children = [None] * self.pop_size
         for i in range(0, self.pop_size):
-            children[i] = self.population[order[i]].cross(self.population[order[(i+1) % self.pop_size]], self.crossover, False)
+            children[i], evals = self.population[order[i]].cross(self.population[order[(i+1) % self.pop_size]], self.crossover, False)
+            self.num_evaluations += evals
 
         for i in range(0, self.pop_size):
             # Adds the new child to the population if it is better than its main parent.
-            if children[i] >= self.population[order[i]]:
+            if children[i] > self.population[order[i]]:
                 # and children[i] != self.population[order[i]] and
                 # children[i] != self.population[order[(i+1) % self.pop_size]]:
                 self.population[order[i]] = children[i]
                 self.improved[order[i]] = False
+                self.num_reemplacements += 1
 
-        self.num_evaluations += self.pop_size
         self.greedyDiversification()
 
     def applyLocalSearch(self, rand = False):

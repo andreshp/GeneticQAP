@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('instance', metavar='-i', type=str, help='Instance to execute.')
     parser.add_argument('algorithm', metavar='-a', type=str, help='Algorithm to use. Options: gga, sga, gadegd')
     parser.add_argument('execution', metavar='-e', type=str, help='Type of execution. Options: t, i, e, c')
-    parser.add_argument('exe_parameter', metavar='-ep', type=int, help='Execution parameter.')
+    parser.add_argument('exe_parameter', metavar='-ep', type=float, help='Execution parameter.')
     parser.add_argument('-ps', '--population_size', type=int, help='Population size.')
     parser.add_argument('-pc', '--prob_cross', type=float, help='Crossover probability. It is 0.7 by default.')
     parser.add_argument('-pm', '--prob_mut', type=float, help='Mutation probability. It is 0.1 by default.')
@@ -65,9 +65,9 @@ if __name__ == "__main__":
     exe_time = 0
     num_evaluations = 0
     if etype == Execution.iterations:
-        num_iterations = args.exe_parameter
+        num_iterations = round(args.exe_parameter)
     elif etype == Execution.fixed_evaluations:
-        num_evaluations = args.exe_parameter
+        num_evaluations = round(args.exe_parameter)
     else:
         exe_time = args.exe_parameter
 
@@ -92,12 +92,14 @@ if __name__ == "__main__":
     if args.algorithm == 'gga':
         gga = GGA(problem, args.verbose, args.aux_info, pop_size=pop_size, crossover=crossover,
                   hybrid_ls = hls, cross_prob=prob_cross, mut_prob=prob_mut)
-        s = gga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
+        s = gga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder,
+                                 csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'sga':
         sga = SGA(problem, args.verbose, args.aux_info, pop_size=pop_size, crossover=crossover,
                   hybrid_ls = hls, mut_prob = prob_mut)
-        s = sga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder, csvs = args.csv_suffix)
+        s = sga.generateSolution(exe_time, num_iterations, num_evaluations, etype, csvf = args.csv_folder,
+                                 csvs = args.csv_suffix)
         s.fullPrint()
     elif args.algorithm == 'gadegd':
         gadegd = GADEGD(problem, args.verbose, args.aux_info, pop_size=pop_size,

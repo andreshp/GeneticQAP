@@ -63,14 +63,14 @@ class Solution(AbstractSolution):
         if not twosols:
             s = -np.ones(self.problem.N, dtype = np.int64)
             if cross_type == CrossType['PR']:
-                ovalue = crossPathRelinking(s, self.perm, self.getObjectiveValue(), p.perm,
-                                            p.getObjectiveValue(), self.problem.weights, self.problem.distances)
+                ovalue, evals = crossPathRelinking(s, self.perm, self.getObjectiveValue(), p.perm,
+                                                   p.getObjectiveValue(), self.problem.weights, self.problem.distances)
                 sol = Solution(self.problem, False, s)
                 sol.ovalue = ovalue
-                return sol
+                return sol, evals
             else:
                 crossPositionOne(s, self.perm, p.perm)
-                return Solution(self.problem, False, s)
+                return Solution(self.problem, False, s), 1
         else:
             s1 = -np.ones(self.problem.N, dtype = np.int64)
             s2 = -np.ones(self.problem.N, dtype = np.int64)
@@ -79,20 +79,20 @@ class Solution(AbstractSolution):
             elif cross_type == CrossType['PMX']:
                 crossPMX(s1, s2, self.perm, p.perm)
             elif cross_type == CrossType['PR']:
-                ovalue1 = crossPathRelinking(s1, self.perm, self.getObjectiveValue(), p.perm,
+                ovalue1, evals1 = crossPathRelinking(s1, self.perm, self.getObjectiveValue(), p.perm,
                                              p.getObjectiveValue(), self.problem.weights, self.problem.distances)
-                ovalue2 = crossPathRelinking(s2, p.perm, p.getObjectiveValue(), self.perm,
+                ovalue2, evals2 = crossPathRelinking(s2, p.perm, p.getObjectiveValue(), self.perm,
                                              self.getObjectiveValue(), self.problem.weights,
                                              self.problem.distances)
                 sol1 = Solution(self.problem, False, s1)
                 sol1.ovalue = ovalue1
                 sol2 = Solution(self.problem, False, s2)
                 sol2.ovalue = ovalue2
-                return sol1, sol2
+                return sol1, sol2, evals1+evals2
             else:
                 crossOX(s1, s2, self.perm, p.perm)
                 
-            return Solution(self.problem, False, s1), Solution(self.problem, False, s2)
+            return Solution(self.problem, False, s1), Solution(self.problem, False, s2), 2
         
     def mutate(self, num_mut = 1):
         """ Mutates the solution. The mutation consist of applying a random transposition."""
@@ -359,7 +359,7 @@ def crossOX(s1, s2, p1, p2):
             s2[t2] = p1[k]
             t2 = (t2+1)%len(p1)
 
-@jit(int64(int64[:], int64[:], int64, int64[:], int64, int64[:,:], int64[:,:]), cache=True, nopython=True)
+@jit(types.UniTuple(int64,2)(int64[:], int64[:], int64, int64[:], int64, int64[:,:], int64[:,:]), cache=True, nopython=True)
 def crossPathRelinking(best_sol, p1, cp1, p2, cp2, weights, distances):
     """ Path Relinking crossover implemented with numba.
     """
@@ -373,14 +373,15 @@ def crossPathRelinking(best_sol, p1, cp1, p2, cp2, weights, distances):
     if dist <= 2:
         if cp1 >= cp2:
             best_sol[:] = p1[:]
-            return cp1
+            return cp1, 0
         else:
             best_sol[:] = p2[:]
-            return cp2            
+            return cp2, 0
 
     # Selects a random order for going from p1 to p2.
     order = np.arange(len(p1))
     np.random.shuffle(order)
+    num_evaluations = 0
     for j in range(0, len(p1)-2):
         i = order[j]
         if s[i] != p2[i]:
@@ -393,7 +394,8 @@ def crossPathRelinking(best_sol, p1, cp1, p2, cp2, weights, distances):
             sinverse[s[i]] = sinverse[p2[i]]
             s[i] = p2[i]
             sinverse[p2[i]] = i
-            
+
+            num_evaluations += 1
             # Updates the best solution found
             if dist > 0:
                 if (best_cost < 0 or best_cost > current_cost):
@@ -401,4 +403,5 @@ def crossPathRelinking(best_sol, p1, cp1, p2, cp2, weights, distances):
                     best_cost = current_cost
             else:
                 break
-    return best_cost
+            
+    return best_cost, num_evaluations

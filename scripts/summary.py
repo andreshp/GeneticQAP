@@ -46,6 +46,8 @@ def firstCSV(directory):
         times = []
         evaluations = []
         iterations = []
+        ls = []
+        greedy = []
         ovalues = []
         for f in sols:
             sol = open(f)
@@ -56,12 +58,16 @@ def firstCSV(directory):
             l = sol.readline()
             iterations.append(float(l.split()[3]))
             l = sol.readline()
+            ls.append(float(l.split()[5]))
+            l = sol.readline()
+            greedy.append(float(l.split()[4]))
+            l = sol.readline()
             ovalues.append(int(l.split()[-2]))
 
         with open(os.path.join(directory, "results.csv"), 'w') as w:
             writer = csv.writer(w, delimiter=',')
-            writer.writerows([("Time", "Evaluations", "Iterations", "Objective value")])
-            writer.writerows(zip(times, evaluations, iterations, ovalues))
+            writer.writerows([("Time", "Evaluations", "Iterations", "Objective value", "Local search applications", "Greedy solutions")])
+            writer.writerows(zip(times, evaluations, iterations, ovalues, ls, greedy))
 
     for d in directories(directory):
         firstCSV(d)
@@ -105,10 +111,10 @@ def summarizeInstance(directory, alg_path, instance, algorithms, opt):
         best_ovalue = df['Objective value'].min()
         if not alg in algorithms:
             algorithms[alg] = DataFrame(columns=('Instance', 'Time', 'Evaluations', 'Iterations',
-                                                 'Objective value', 'Distance to optimum (Avg)', 'Distance to optimum (Best)'))
-        mean_ovalue = mean_values[-1]
+                                                 'Objective value', 'Distance to optimum (Avg)', 'Distance to optimum (Best)', 'Local search applications', 'Greedy solutions'))
+        mean_ovalue = mean_values[-3]
         algorithms[alg].loc[len(algorithms[alg])] = [instance, mean_values[0], mean_values[1],
-                                                     mean_values[2], mean_ovalue, 100*float(mean_ovalue - opt)/opt, 100*float(best_ovalue - opt)/opt]
+                                                     mean_values[2], mean_ovalue, 100*float(mean_ovalue - opt)/opt, 100*float(best_ovalue - opt)/opt, mean_values[-2], mean_values[-1]]
 
     # Call to each directory recursively.
     for d in os.listdir(path):
@@ -123,7 +129,7 @@ def globalSummary(directory):
         if alg_name != "summary":
             df = read_csv(f)
             mean_values = df[1:].mean()
-            summary.loc[len(summary)] = [alg_name, mean_values[0], mean_values[1], mean_values[2], mean_values[-2], mean_values[-1]]
+            summary.loc[len(summary)] = [alg_name, mean_values[0], mean_values[1], mean_values[2], mean_values[-4], mean_values[-3]]
     summary = sort_df(summary,0,key=lambda x: x)
     summary.to_csv(os.path.join(directory, "summary.csv"), index=False, encoding='utf-8')
             

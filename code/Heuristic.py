@@ -36,10 +36,14 @@ class Heuristic:
         
         # Boolean which determines whether auxiliar information about the execution is printed or not.
         self.print_aux_info = print_aux_info
-        # Number of local search applications in the computations. It is only updated by those heuristics which use the local search.
+        # Number of local search applications in the computations.
+        # It is only updated by those heuristics which use the local search.
         self.num_ls = 0
-        # Number of greedy solutions generated in the heuristic. It is only updated in those heuristics which use greedy solution underneath.
+        # Number of greedy solutions generated in the heuristic.
+        # It is only updated in those heuristics which use greedy solution underneath.
         self.num_greedy = 0
+        # Number of children that reemplaced their parents in GADEGD.
+        self.num_reemplacements = 0
 
     def initialComputations1(self):
         raise NotImplementedError
@@ -157,6 +161,7 @@ class Heuristic:
         if self.print_aux_info:
             print("Number of local search applications:", self.num_ls)
             print("Number of greedy solutions:", self.num_greedy)
+            print("Number of reemplacements in GADEGD:", self.num_reemplacements)
 
         if csvf != None:
             self.saveCSV(csvf, csvs)
