@@ -48,6 +48,7 @@ def firstCSV(directory):
         iterations = []
         ls = []
         greedy = []
+        reemplacements = []
         ovalues = []
         for f in sols:
             sol = open(f)
@@ -63,12 +64,15 @@ def firstCSV(directory):
             l = sol.readline()
             greedy.append(float(l.split()[4]))
             l = sol.readline()
+            reemplacements.append(float(l.split()[-1]))
+            l = sol.readline()
             ovalues.append(int(l.split()[-2]))
 
         with open(os.path.join(directory, "results.csv"), 'w') as w:
             writer = csv.writer(w, delimiter=',')
-            writer.writerows([("Time", "Evaluations", "Iterations", "Objective value", "Local search applications", "Greedy solutions")])
-            writer.writerows(zip(times, evaluations, iterations, ovalues, ls, greedy))
+            writer.writerows([("Time", "Evaluations", "Iterations", "Objective value",
+                               "Local search applications", "Greedy solutions", "Reemplacements in GADEGD")])
+            writer.writerows(zip(times, evaluations, iterations, ovalues, ls, greedy, reemplacements))
 
     for d in directories(directory):
         firstCSV(d)
@@ -112,10 +116,15 @@ def summarizeInstance(directory, alg_path, instance, algorithms, opt):
         best_ovalue = df['Objective value'].min()
         if not alg in algorithms:
             algorithms[alg] = DataFrame(columns=('Instance', 'Time', 'Evaluations', 'Iterations',
-                                                 'Objective value', 'Distance to optimum (Avg)', 'Distance to optimum (Best)', 'Local search applications', 'Greedy solutions'))
-        mean_ovalue = mean_values[-3]
+                                                 'Objective value', 'Distance to optimum (Avg)',
+                                                 'Distance to optimum (Best)', 'Local search applications',
+                                                 'Greedy solutions', "Reemplacements in GADEGD"))
+        mean_ovalue = mean_values[-4]
         algorithms[alg].loc[len(algorithms[alg])] = [instance, mean_values[0], mean_values[1],
-                                                     mean_values[2], mean_ovalue, 100*float(mean_ovalue - opt)/opt, 100*float(best_ovalue - opt)/opt, mean_values[-2], mean_values[-1]]
+                                                     mean_values[2], mean_ovalue,
+                                                     100*float(mean_ovalue - opt)/opt,
+                                                     100*float(best_ovalue - opt)/opt,
+                                                     mean_values[-3], mean_values[-2], mean_values[-1]]
 
     # Call to each directory recursively.
     for d in os.listdir(path):

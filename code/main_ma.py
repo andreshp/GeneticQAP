@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Multi-start heuristics for QAP.')
     parser.add_argument('instance', metavar='-i', type=str, help='Instance to execute.')
-    parser.add_argument('algorithm', metavar='-a', type=str, help='Algorithm to use. Options: ils, grasp, greedy1, greedy2')
+    parser.add_argument('algorithm', metavar='-a', type=str, help='Algorithm to use. Options: ils, grasp, pr')
     parser.add_argument('execution', metavar='-e', type=str, help='Type of execution. Options: t, i, e, c')
     parser.add_argument('exe_parameter', metavar='-ep', type=float, help='Execution parameter.')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose execution.')
@@ -101,7 +101,12 @@ if __name__ == "__main__":
         s = grasp.generateSolution(exe_time, num_iterations, num_evaluations, etype,
                                    csvf = args.csv_folder, csvs = args.csv_suffix)
         s.fullPrint()
-    elif args.algorithm == 'greedy':
-        g = GreedyQAP(problem)
-        grasp = GRASP(problem, g, args.verbose, ls, ls_max_evals)
-        grasp.generateSolution(0, 0, 0, etype, csvf = args.csv_folder, csvs = args.csv_suffix).fullPrint()
+    else:
+        if greedy == 'ind':
+            g = RandomizedIndividualGreedy(problem, greedy_alpha)
+        else:
+            g = RandomizedPairsGreedy(problem, greedy_alpha)
+        pr = PathRelinking(problem, g, args.verbose, args.aux_info, ls, ls_max_evals)
+        s = pr.generateSolution(exe_time, num_iterations, num_evaluations, etype,
+                                   csvf = args.csv_folder, csvs = args.csv_suffix)
+        s.fullPrint()

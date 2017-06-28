@@ -22,7 +22,7 @@ if len(sys.argv) < 2:
 instance = sys.argv[1]
 ninstance = instance.replace('.dat', '').split('/')[-1]
 instance_size = int(re.findall('\d+', ninstance)[0])
-execution_type = "t " + str(int(instance_size * instance_size * 0.0000001))
+execution_type = "t " + str(instance_size * instance_size * 0.0000001)
 sols_dir = "./results/paper/" + ninstance 
 num_executions = 30
 server = len(sys.argv) > 2

@@ -64,7 +64,8 @@ class Solution(AbstractSolution):
             s = -np.ones(self.problem.N, dtype = np.int64)
             if cross_type == CrossType['PR']:
                 ovalue, evals = crossPathRelinking(s, self.perm, self.getObjectiveValue(), p.perm,
-                                                   p.getObjectiveValue(), self.problem.weights, self.problem.distances)
+                                                   p.getObjectiveValue(), self.problem.weights,
+                                                   self.problem.distances)
                 sol = Solution(self.problem, False, s)
                 sol.ovalue = ovalue
                 return sol, evals
@@ -397,11 +398,11 @@ def crossPathRelinking(best_sol, p1, cp1, p2, cp2, weights, distances):
 
             num_evaluations += 1
             # Updates the best solution found
-            if dist > 0:
-                if (best_cost < 0 or best_cost > current_cost):
+            if best_cost < 0 or best_cost > current_cost:
                     best_sol[:] = s[:]
                     best_cost = current_cost
-            else:
+
+            if dist <= 2:
                 break
             
     return best_cost, num_evaluations

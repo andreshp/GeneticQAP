@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser.add_argument('-lsp', '--ls_proportion', type=float, help='Proportion of the population improved by the local search.')
     parser.add_argument('-lsme', '--ls_max_evals', type=float, help='Maximum number of evaluations used by the local search. By the default there is no upper limit in the number of evaluations.')
     parser.add_argument('-seed', '--seed', type=int, help='Seed for random numbers generation.')
-    
+
     args = parser.parse_args()
 
     # Set the seed
