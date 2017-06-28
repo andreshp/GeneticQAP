@@ -23,12 +23,13 @@ def setSeed(seed):
     random.seed(seed)
     np.random.seed(seed)
 
-def execute(parameters, sol_dir, suffix, num_executions, server):
+def execute(parameters, sol_dir, suffix, num_executions, server, diversity = False):
     os.makedirs(sol_dir, exist_ok = True)
     for i in range(1, num_executions+1):
         command = " ".join([parameters,"-seed", str(i)])
         if server:
-            os.system(" ".join(["bash", "./scripts/execute_instance.sh", sol_dir, str(i), command,  "-csvf /tmp", "-csvs", suffix+"_"+str(i)]))
+            os.system(" ".join(["bash", "./scripts/execute_instance.sh", "true" if diversity else "false",
+                                sol_dir, str(i), command, "-csvf /tmp", "-csvs", suffix+"_"+str(i)]))
         else:
             sol = sol_dir + "/"+str(i)+".sol"
             os.system(" ".join([command, "-csvf", sol_dir, "-csvs", str(i), ">", sol]))

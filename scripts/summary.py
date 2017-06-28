@@ -52,6 +52,7 @@ def firstCSV(directory):
         for f in sols:
             sol = open(f)
             l = sol.readline()
+#            print(directory, f, l)
             times.append(float(l.split()[2]))
             l = sol.readline()
             evaluations.append(float(l.split()[3]))

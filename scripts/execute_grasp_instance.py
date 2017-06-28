@@ -26,7 +26,7 @@ execution_type = "t " + str(instance_size * instance_size * 0.01)
 sols_dir = "./results/paper/" + ninstance 
 num_executions = 30
 server = len(sys.argv) > 2
-code = "./code/main.py"
+code = "./code/main_ma.py"
 
 print("Executing GRASP with different alpha values...")
 alpha_values = [0.005, 0.01, 0.05, 0.1, 0.2]
@@ -37,7 +37,7 @@ for alpha in alpha_values:
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python", code, instance, "grasp", execution_type,
-                            "-gr ind", "-ls 2optb -gra", str(alpha)])
+                            "-gr ind", "-ls 2optb -gra", str(alpha), "-aux"])
     execute(parameters, sol_dir, suffix, num_executions, server)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())

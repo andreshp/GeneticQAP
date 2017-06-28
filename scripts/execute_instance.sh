@@ -8,19 +8,20 @@
 #------------------------------ CHECK PARAMETERS ------------------------------#
 
 if [[ $# -eq 0 ]]; then
-    echo "Sintax: ./execute.sh <folder> <name> <execution command>"
+    echo "Sintax: ./execute.sh <has diversity file> <folder> <name> <execution command>"
     exit
 fi
 
 #--------------------------------- VARIABLES ----------------------------------#
 
-INSTANCE="`echo $@ | cut -d' ' -f5 | cut -d'/' -f3 | cut -d'.' -f1`"
-FILE_NAME=$2
-DIR=$1 #`pwd`; #DIR=${DIR:0:-5} 
+DIVERSITY=$1
+INSTANCE="`echo $@ | cut -d' ' -f6 | cut -d'/' -f3 | cut -d'.' -f1`"
+FILE_NAME=$3
+DIR=$2 #`pwd`; #DIR=${DIR:0:-5} 
 SCRIPT=$DIR/$FILE_NAME.sh
 RESULTS=$FILE_NAME.sol
 ERRORS=$FILE_NAME.log
-COMMAND="`echo $@ | cut -d' ' -f3-`"
+COMMAND="`echo $@ | cut -d' ' -f4-`"
 
 #------------------------------- BUILD SCRIPT ---------------------------------#
 
@@ -47,6 +48,7 @@ echo "# Set working directory to the current one" >> $SCRIPT
 echo "#$ -cwd" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "$COMMAND; mv /tmp/objective_value_${@: -1}.csv $DIR/objective_value_$FILE_NAME.csv" >> $SCRIPT
+echo " if [[ $DIVERSITY -eq true ]] then; mv /tmp/diversity_${@: -1}.csv $DIR/diversity_$FILE_NAME.csv; fi" >> $SCRIPT
 echo "" >> $SCRIPT
 echo "wait \$!" >> $SCRIPT
 
