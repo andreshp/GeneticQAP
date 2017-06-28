@@ -37,7 +37,7 @@ for size in ps:
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux"])
-    execute(parameters, sol_dir, suffix, num_executions, server)
+    execute(parameters, sol_dir, suffix, num_executions, server, True)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
 
@@ -51,6 +51,6 @@ for size in ps:
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux",
                            "-lsga Best -ls 2optb -itpls 1"])
-    execute(parameters, sol_dir, suffix, num_executions, server)
+    execute(parameters, sol_dir, suffix, num_executions, server, True)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
