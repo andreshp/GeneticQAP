@@ -71,7 +71,7 @@ def firstCSV(directory):
         with open(os.path.join(directory, "results.csv"), 'w') as w:
             writer = csv.writer(w, delimiter=',')
             writer.writerows([("Time", "Evaluations", "Iterations", "Objective value",
-                               "Local search applications", "Greedy solutions", "Reemplacements in GADEGD")])
+                               "Local search applications", "Greedy solutions", "Reemplacements in the population")])
             writer.writerows(zip(times, evaluations, iterations, ovalues, ls, greedy, reemplacements))
 
     for d in directories(directory):
@@ -118,7 +118,7 @@ def summarizeInstance(directory, alg_path, instance, algorithms, opt):
             algorithms[alg] = DataFrame(columns=('Instance', 'Time', 'Evaluations', 'Iterations',
                                                  'Objective value', 'Distance to optimum (Avg)',
                                                  'Distance to optimum (Best)', 'Local search applications',
-                                                 'Greedy solutions', "Reemplacements in GADEGD"))
+                                                 'Greedy solutions', "Reemplacements in the population"))
         mean_ovalue = mean_values[-4]
         algorithms[alg].loc[len(algorithms[alg])] = [instance, mean_values[0], mean_values[1],
                                                      mean_values[2], mean_ovalue,
@@ -139,7 +139,7 @@ def globalSummary(directory):
         if alg_name != "summary":
             df = read_csv(f)
             mean_values = df[1:].mean()
-            summary.loc[len(summary)] = [alg_name, mean_values[0], mean_values[1], mean_values[2], mean_values[-4], mean_values[-3]]
+            summary.loc[len(summary)] = [alg_name, mean_values[0], mean_values[1], mean_values[2], mean_values[-5], mean_values[-4]]
     summary = sort_df(summary,0,key=lambda x: x)
     summary.to_csv(os.path.join(directory, "summary.csv"), index=False, encoding='utf-8')
             

@@ -22,14 +22,14 @@ if len(sys.argv) < 2:
 instance = sys.argv[1]
 ninstance = instance.replace('.dat', '').split('/')[-1]
 instance_size = int(re.findall('\d+', ninstance)[0])
-execution_type = "t " + str(instance_size * instance_size * 0.0000001)
+execution_type = "t " + str(instance_size * instance_size * 0.01)
 sols_dir = "./results/paper/" + ninstance 
 num_executions = 30
 server = len(sys.argv) > 2
 code = "./code/main.py"
 
 print("Executing GADEGD with different population sizes...")
-ps = [8, 16, 32, 64, 128]
+ps = [16, 32, 64]
 timer = Timer()
 timer.start()
 for size in ps:
@@ -42,7 +42,7 @@ if not server:
     print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing MADEGD with different population sizes...")
-ps = [8, 16, 32, 64, 128]
+ps = [16, 32, 64]
 timer = Timer()
 timer.start()
 for size in ps:

@@ -423,7 +423,7 @@ class GADEGD(GeneticAlgorithm):
         # Chooses the population size. It is always an even number (by default 50).
         self.pop_size = pop_size + pop_size % 2 if pop_size > 0 else 64
         # Greedy algorithm used
-        self.greedy =  greedy  if greedy != None else RandomizedIndividualGreedy(problem, 0.05)
+        self.greedy =  greedy  if greedy != None else RandomizedIndividualGreedy(problem, 0.1)
         
         super().__init__(problem, verbose, print_aux_info, self.pop_size, crossover, hybrid_ls)
 

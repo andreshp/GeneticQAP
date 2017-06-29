@@ -1,0 +1,84 @@
+% Created 2017-06-30 Fri 00:58
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Andrés Herrera Poyatos}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={Andrés Herrera Poyatos},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 25.1.2 (Org mode 9.0.5)}, 
+ pdflang={English}}
+\begin{document}
+
+\tableofcontents
+
+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+
+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+
+import os
+import numpy as np
+import sys
+import re
+
+sys.path.insert(0, './code')
+
+from Timer import Timer
+from Aux import execute
+
+if len(sys.argv) < 2:
+    print("Error: Needs an instance as argument")
+    sys.exit()
+
+instance = sys.argv[1]
+ninstance = instance.replace('.dat', '').split('/')[-1]
+instance\(_{\text{size}}\) = int(re.findall('\d+', ninstance)[0])
+execution\(_{\text{type}}\) = "t " + str(instance\(_{\text{size}}\) * instance\(_{\text{size}}\) * 0.0000001)
+sols\(_{\text{dir}}\) = "./results/paper/" + ninstance 
+num\(_{\text{executions}}\) = 30
+server = len(sys.argv) > 2
+code = "./code/main.py"
+
+print("Executing GADEGD with different population sizes\ldots{}")
+ps = [8, 16, 32, 64, 128]
+timer = Timer()
+timer.start()
+for size in ps:
+    sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "GADEGD/original/ps="+str(size)
+    suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("/", "\_")
+    sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+    parameters = " ".join(["python", code, instance, "gadegd", execution\(_{\text{type}}\), "-ps", str(size), "-c PR -aux"])
+    execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server, True)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
+print("Executing MADEGD with different population sizes\ldots{}")
+ps = [8, 16, 32, 64, 128]
+timer = Timer()
+timer.start()
+for size in ps:
+    sol\(_{\text{dir}}\)\(_{\text{suffix}}\) = "MADEGD/original/ps="+str(size)
+    suffix = sol\(_{\text{dir}}\)\(_{\text{suffix.replace}}\)("/", "\_")
+    sol\(_{\text{dir}}\) = os.path.join(sols\(_{\text{dir}}\), sol\(_{\text{dir}}\)\(_{\text{suffix}}\))
+    parameters = " ".join(["python", code, instance, "gadegd", execution\(_{\text{type}}\), "-ps", str(size), "-c PR -aux",
+                           "-lsga Best -ls 2optb -itpls 1"])
+    execute(parameters, sol\(_{\text{dir}}\), suffix, num\(_{\text{executions}}\), server, True)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+\end{document}

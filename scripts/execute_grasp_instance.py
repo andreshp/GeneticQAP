@@ -28,28 +28,28 @@ num_executions = 30
 server = len(sys.argv) > 2
 code = "./code/main_ma.py"
 
-print("Executing GRASP with different alpha values...")
-alpha_values = [0.005, 0.01, 0.05, 0.1, 0.2]
-timer = Timer()
-timer.start()
-for alpha in alpha_values:
-    sol_dir_suffix = "GRASP/2optb/alpha="+str(alpha)
-    suffix = sol_dir_suffix.replace("/", "_")
-    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python", code, instance, "grasp", execution_type,
-                            "-gr ind", "-ls 2optb -gra", str(alpha), "-aux"])
-    execute(parameters, sol_dir, suffix, num_executions, server)
-if not server:
-    print("Elapsed time in seconds:", timer.getTime())
+#print("Executing GRASP with different alpha values...")
+#alpha_values = [0.005, 0.01, 0.05, 0.1, 0.2]
+#timer = Timer()
+#timer.start()
+#for alpha in alpha_values:
+#    sol_dir_suffix = "GRASP/2optb/alpha="+str(alpha)
+#    suffix = sol_dir_suffix.replace("/", "_")
+#    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
+#    parameters = " ".join(["python", code, instance, "grasp", execution_type,
+#                            "-gr ind", "-ls 2optb -gra", str(alpha), "-aux"])
+#    execute(parameters, sol_dir, suffix, num_executions, server)
+#if not server:
+#    print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing path relinking...")
 timer = Timer()
 timer.start()
-sol_dir_suffix = "PathRelinking/2optb/alpha=0.05"
+sol_dir_suffix = "PathRelinking/2optb/alpha=0.1"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, sol_dir_suffix)
 parameters = " ".join(["python", code, instance, "pr", execution_type,
-                       "-gr ind", "-ls 2optb -gra 0.05 -aux"])
+                       "-gr ind", "-ls 2optb -gra 0.1 -aux"])
 execute(parameters, sol_dir, suffix, num_executions, server)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
