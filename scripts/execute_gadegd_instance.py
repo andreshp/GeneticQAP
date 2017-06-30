@@ -46,7 +46,7 @@ ps = [8, 16, 32, 64, 128]
 timer = Timer()
 timer.start()
 for size in ps:
-    sol_dir_suffix = "MADEGD/original/ps="+str(size)
+    sol_dir_suffix = "MADEGD/new/ps="+str(size)
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux",
