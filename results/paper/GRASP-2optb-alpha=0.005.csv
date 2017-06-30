@@ -1,4 +1,4 @@
-Instance,Time,Evaluations,Iterations,Objective value,Distance to optimum (Avg),Distance to optimum (Best),Local search applications,Greedy solutions,Reemplacements in GADEGD
+Instance,Time,Evaluations,Iterations,Objective value,Distance to optimum (Avg),Distance to optimum (Best),Local search applications,Greedy solutions,Reemplacements in the population
 els19,3.610643823941549,4159501.466666667,3130.0,17997928.0,4.562834044093878,4.562834044093878,3131.0,3131.0,0.0
 chr20b,4.0005360762278235,3235020.6,4112.2,3160.0,37.51087902523934,37.51087902523934,4113.2,4113.2,0.0
 chr22a,4.840650637944539,5119215.433333334,3758.866666666667,6594.0,7.115009746588694,7.115009746588694,3759.866666666667,3759.866666666667,0.0

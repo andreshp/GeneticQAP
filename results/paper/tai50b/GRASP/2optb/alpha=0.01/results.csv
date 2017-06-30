@@ -1,4 +1,4 @@
-Time,Evaluations,Iterations,Objective value,Local search applications,Greedy solutions,Reemplacements in GADEGD
+Time,Evaluations,Iterations,Objective value,Local search applications,Greedy solutions,Reemplacements in the population
 25.00897479057312,23935600.0,1870.0,461769352,1871.0,1871.0,0.0
 25.010268926620483,23902655.0,1864.0,461814347,1865.0,1865.0,0.0
 25.008419513702393,23434411.0,1831.0,461814347,1832.0,1832.0,0.0

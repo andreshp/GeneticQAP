@@ -93,7 +93,7 @@ class GeneticAlgorithm(Heuristic):
         the population is saved in a sorted list.
         """
         if not rand and h != None:
-            self.population = h.generateSolutions(self.pop_size)
+            self.population = [h.buildSolution() for i in range(0, self.pop_size)]
         else:
             self.population = [Solution(self.problem) for i in range(0, self.pop_size)]
         
@@ -252,7 +252,7 @@ class GGA(GeneticAlgorithm):
                 #print("Son is best sol")
             elif self.hls.lsga != TypeLSGA['None'] and h2 == self.population[p2]:
                 new_improved[2*i+1] = self.improved[p2]
-                    
+
         # Fills the new population with old solutions.
         for i in range(2*self.crossed_pairs, self.pop_size):
             # Selects a solution and copy it.
@@ -428,12 +428,20 @@ class GADEGD(GeneticAlgorithm):
         super().__init__(problem, verbose, print_aux_info, self.pop_size, crossover, hybrid_ls)
 
     def initialComputations1(self):
-        """ Initializes the population with random solutions."""
+        """ Initializes the population with greedy solutions."""
         super().initialComputations1()
-        self.initializePopulation()
-        self.num_greedy = 0
+        if self.hls.lsga != TypeLSGA['None']:
+            self.initializePopulation(False, self.greedy)
+            for s in self.population:
+                self.num_evaluations += LocalSearch.localSearch(s, self.hls.local_search, self.hls.max_evals)
+            self.num_ls = self.pop_size
+            self.num_greedy = self.pop_size
+        else:
+            self.initializePopulation(False, self.greedy)
+#             self.initializePopulation()
+                
         self.num_reemplacements = 0
-        
+
     def evolve(self):
         """
         The population evolves using a random adjacent selection and a competition between parents and children.
@@ -448,35 +456,40 @@ class GADEGD(GeneticAlgorithm):
             children[i], evals = self.population[order[i]].cross(self.population[order[(i+1) % self.pop_size]], self.crossover, False)
             self.num_evaluations += evals
 
+        if self.hls.lsga != TypeLSGA['None']:
+            for i in range(0, self.pop_size):
+                self.num_evaluations += LocalSearch.localSearch(children[i], self.hls.local_search, self.hls.max_evals)
+            self.num_ls += self.pop_size
+            
         for i in range(0, self.pop_size):
             # Adds the new child to the population if it is better than its main parent.
-            if children[i] > self.population[order[i]]:
+            if children[i] >= self.population[order[i]]:
                 # and children[i] != self.population[order[i]] and
                 # children[i] != self.population[order[(i+1) % self.pop_size]]:
                 self.population[order[i]] = children[i]
-                self.improved[order[i]] = False
+                #self.improved[order[i]] = False
                 self.num_reemplacements += 1
 
         self.greedyDiversification()
 
     def applyLocalSearch(self, rand = False):
-
+        return False
         # If it has already been improved return false.
-        if np.all(self.improved):
-            return False
+        #if np.all(self.improved):
+        #    return False
 
         # Choose the solution to improve.
-        if rand:
-            best_ni =  np.random.choice(np.where(self.improved == False)[0])
-        else:
-            self.ovalues = np.fromiter(map(lambda x: x.getObjectiveValue(), self.population), np.int64)
-            best_ni = np.argmax((np.ones(self.pop_size)- self.improved) / self.ovalues)
+        #if rand:
+        #    best_ni =  np.random.choice(np.where(self.improved == False)[0])
+        #else:
+        #    self.ovalues = np.fromiter(map(lambda x: x.getObjectiveValue(), self.population), np.int64)
+        #    best_ni = np.argmax((np.ones(self.pop_size)- self.improved) / self.ovalues)
 
-        self.num_evaluations+= LocalSearch.localSearch(self.population[best_ni],
-                                                       self.hls.local_search, self.hls.max_evals)
-        self.improved[best_ni] = True
-
-        return True
+        #self.num_evaluations+= LocalSearch.localSearch(self.population[best_ni],
+        #                                                self.hls.local_search, self.hls.max_evals)
+        #self.improved[best_ni] = True
+        #
+        #return True
 
     def greedyDiversification(self):
         order = argsort(self.population)
@@ -485,9 +498,11 @@ class GADEGD(GeneticAlgorithm):
         for i in range(0, self.pop_size-1):
             if self.population[i] == self.population[i+1]:
                 self.population[i] = self.greedy.buildSolution()
-                self.improved[i] = False
+                if self.hls.lsga != TypeLSGA['None']:
+                    self.num_evaluations += 1 + LocalSearch.localSearch(self.population[i], self.hls.local_search, self.hls.max_evals)
+                    self.num_ls += 1
+                #self.improved[i] = False
                 self.num_greedy += 1
-                self.num_evaluations += 1
 
     def updateBestSol(self):
         self.best_sol_arg = self.population.index(max(self.population))
