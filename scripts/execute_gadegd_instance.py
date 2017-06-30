@@ -29,7 +29,8 @@ server = len(sys.argv) > 2
 code = "./code/main.py"
 
 print("Executing GADEGD with different population sizes...")
-ps = [16, 32, 64]
+#ps = [16, 32, 64]
+ps = [8, 128]
 timer = Timer()
 timer.start()
 for size in ps:
@@ -42,7 +43,8 @@ if not server:
     print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing MADEGD with different population sizes...")
-ps = [16, 32, 64]
+#ps = [16, 32, 64]
+ps = [8, 128]
 timer = Timer()
 timer.start()
 for size in ps:
