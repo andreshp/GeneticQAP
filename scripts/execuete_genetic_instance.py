@@ -31,21 +31,21 @@ code = "./code/main.py"
 print("Executing GGA...")
 timer = Timer()
 timer.start()
-    sol_dir_suffix = "GGA/PR"
-    suffix = sol_dir_suffix.replace("/", "_")
-    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python", code, instance, "gga", execution_type, "-ps 60", "-c PR -aux"])
-    execute(parameters, sol_dir, suffix, num_executions, server, True)
+sol_dir_suffix = "GGA/PR"
+suffix = sol_dir_suffix.replace("/", "_")
+sol_dir = os.path.join(sols_dir, sol_dir_suffix)
+parameters = " ".join(["python", code, instance, "gga", execution_type, "-ps 60", "-c PR -aux"])
+execute(parameters, sol_dir, suffix, num_executions, server, True)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
 
 print("Executing MA...")
 timer = Timer()
 timer.start()
-    sol_dir_suffix = "MA/PR"
-    suffix = sol_dir_suffix.replace("/", "_")
-    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python", code, instance, "gga", execution_type, "-ps 60", "-c PR -lsga Best -itpls 1 -ls 2optb -aux"])
-    execute(parameters, sol_dir, suffix, num_executions, server, True)
+sol_dir_suffix = "MA/PR"
+suffix = sol_dir_suffix.replace("/", "_")
+sol_dir = os.path.join(sols_dir, sol_dir_suffix)
+parameters = " ".join(["python", code, instance, "gga", execution_type, "-ps 60", "-c PR -lsga Best -itpls 1 -ls 2optb -aux"])
+execute(parameters, sol_dir, suffix, num_executions, server, True)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
