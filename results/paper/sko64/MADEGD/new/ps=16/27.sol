@@ -1,0 +1,11 @@
+Time (s): 40.98755931854248
+Number of evaluations: 35173433
+Number of iterations: 171
+Number of local search applications: 3107
+Number of greedy solutions: 371
+Number of reemplacements in GADEGD: 2085
+The solution has objective value 48502 .
+The permutation is:
+[14 50 46  9 52  7 56 30 53 31 37 18 48 24 62  1 40 10  5 63 12 16 25 58 33
+ 27 61  3 41 20 36 49  2 42 38 54 15 43  6 32 11 29 39 23 22 44  0 55 60 26
+  4 21 51 57 17 34 35 45 47 28 19 13 59  8]
