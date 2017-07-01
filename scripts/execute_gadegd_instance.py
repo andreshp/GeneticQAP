@@ -28,20 +28,20 @@ num_executions = 30
 server = len(sys.argv) > 2
 code = "./code/main.py"
 
-print("Executing GADEGD with different population sizes...")
-ps = [8, 16, 32, 64, 128]
-timer = Timer()
-timer.start()
-for size in ps:
-    sol_dir_suffix = "GADEGD/new-random/ps="+str(size)
-    suffix = sol_dir_suffix.replace("/", "_")
-    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux"])
-    execute(parameters, sol_dir, suffix, num_executions, server, True)
-if not server:
-    print("Elapsed time in seconds:", timer.getTime())
+#print("Executing GADEGD with different population sizes...")
+#ps = [8, 16, 32, 64, 128]
+#timer = Timer()
+#timer.start()
+#for size in ps:
+#    sol_dir_suffix = "GADEGD/new-random/ps="+str(size)
+#    suffix = sol_dir_suffix.replace("/", "_")
+#    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
+#    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PR -aux"])
+#    execute(parameters, sol_dir, suffix, num_executions, server, True)
+#if not server:
+#    print("Elapsed time in seconds:", timer.getTime())
 
-print("Executing GADEGD with different population sizes and the PMX crossover...")
+print("Executing GADEGD with different population sizes and the position crossover...")
 ps = [32, 64, 128]
 timer = Timer()
 timer.start()
@@ -49,7 +49,7 @@ for size in ps:
     sol_dir_suffix = "GADEGD/new-PMX/ps="+str(size)
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
-    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c PMX -aux"])
+    parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c Position -aux"])
     execute(parameters, sol_dir, suffix, num_executions, server, True)
 if not server:
     print("Elapsed time in seconds:", timer.getTime())
