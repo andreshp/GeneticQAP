@@ -76,7 +76,7 @@ if not server:
 print("Executing GGA...")
 timer = Timer()
 timer.start()
-sol_dir_suffix = "GGA/PMX"
+sol_dir_suffix = "GGA/Position"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, sol_dir_suffix)
 parameters = " ".join(["python", code, instance, "gga", execution_type, "-ps 60", "-c Position -aux"])
@@ -87,7 +87,7 @@ if not server:
 print("Executing MA...")
 timer = Timer()
 timer.start()
-sol_dir_suffix = "MA/PMX"
+sol_dir_suffix = "MA/Position"
 suffix = sol_dir_suffix.replace("/", "_")
 sol_dir = os.path.join(sols_dir, sol_dir_suffix)
 parameters = " ".join(["python", code, instance, "gga", execution_type, "-ps 60", "-c Position -lsga Best -itpls 1 -ls 2optb -aux"])

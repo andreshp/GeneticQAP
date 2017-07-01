@@ -46,7 +46,7 @@ ps = [32, 64, 128]
 timer = Timer()
 timer.start()
 for size in ps:
-    sol_dir_suffix = "GADEGD/new-PMX/ps="+str(size)
+    sol_dir_suffix = "GADEGD/new-Position/ps="+str(size)
     suffix = sol_dir_suffix.replace("/", "_")
     sol_dir = os.path.join(sols_dir, sol_dir_suffix)
     parameters = " ".join(["python", code, instance, "gadegd", execution_type, "-ps", str(size), "-c Position -aux"])
