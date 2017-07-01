@@ -437,8 +437,7 @@ class GADEGD(GeneticAlgorithm):
             self.num_ls = self.pop_size
             self.num_greedy = self.pop_size
         else:
-            self.initializePopulation(False, self.greedy)
-#             self.initializePopulation()
+            self.initializePopulation()
                 
         self.num_reemplacements = 0
 
