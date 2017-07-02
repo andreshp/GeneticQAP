@@ -42,6 +42,20 @@ code = "./code/main_ma.py"
 #if not server:
 #    print("Elapsed time in seconds:", timer.getTime())
 
+print("Executing GRASP - Pairs with different alpha values...")
+alpha_values = [0.005, 0.01, 0.05, 0.1, 0.2]
+timer = Timer()
+timer.start()
+for alpha in alpha_values:
+    sol_dir_suffix = "GRASP/pairs/alpha="+str(alpha)
+    suffix = sol_dir_suffix.replace("/", "_")
+    sol_dir = os.path.join(sols_dir, sol_dir_suffix)
+    parameters = " ".join(["python", code, instance, "grasp", execution_type,
+                            "-gr pairs", "-ls 2optb -gra", str(alpha), "-aux"])
+    execute(parameters, sol_dir, suffix, num_executions, server)
+if not server:
+    print("Elapsed time in seconds:", timer.getTime())
+
 print("Executing path relinking...")
 timer = Timer()
 timer.start()
