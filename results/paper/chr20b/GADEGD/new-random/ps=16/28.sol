@@ -1,0 +1,9 @@
+Time (s): 4.000103712081909
+Number of evaluations: 354550
+Number of iterations: 2621
+Number of local search applications: 0
+Number of greedy solutions: 2236
+Number of reemplacements in GADEGD: 10490
+The solution has objective value 2374 .
+The permutation is:
+[ 7  9 15 17  0 18  8 16 19  4  2 10  6  1 11 12  5  3 13 14]
